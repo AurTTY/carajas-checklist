@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Controle de Layout - Carajás</title>
+    <title>Check List - Carajás (Múltiplas Ruas)</title>
     <!-- jsPDF e html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -22,7 +22,7 @@
             flex-direction: column;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             width: 100%;
             background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
@@ -88,18 +88,38 @@
             padding-left: 8px;
             border-left: 6px solid #FFC600;
         }
-        .question-group {
+        .rua-card {
             background: #ffffff;
             border-radius: 20px;
             padding: 16px 14px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            border: 1px solid #eaeef2;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 2px solid #007269;
+            position: relative;
+        }
+        .rua-card h3 {
+            color: #007269;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            padding-right: 30px;
+        }
+        .remove-rua {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #FF671F;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-weight: bold;
+            cursor: pointer;
         }
         .question {
             font-weight: 600;
             font-size: 1.05rem;
-            margin-bottom: 12px;
+            margin: 15px 0 8px;
             color: #1a2b3c;
         }
         .required-star {
@@ -111,7 +131,7 @@
         .hint {
             font-size: 0.85rem;
             color: #5e6f7d;
-            margin-top: -6px;
+            margin-top: -5px;
             margin-bottom: 12px;
             font-style: italic;
             background: #f9fafc;
@@ -133,8 +153,7 @@
             border-radius: 40px;
             border: 1px solid #d0dbe8;
         }
-        .option-item input[type="radio"], 
-        .option-item input[type="checkbox"] {
+        .option-item input[type="radio"] {
             width: 20px;
             height: 20px;
             accent-color: #007269;
@@ -156,9 +175,6 @@
             display: inline-block;
             width: fit-content;
             box-shadow: 0 4px 8px rgba(255,103,31,0.3);
-        }
-        .file-btn:hover {
-            background: #e55c1a;
         }
         .image-preview-grid {
             display: flex;
@@ -191,120 +207,18 @@
             height: 20px;
             font-size: 12px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        .file-list {
-            margin-top: 10px;
-            background: #f3f6f9;
-            border-radius: 20px;
-            padding: 12px;
-            font-size: 0.95rem;
-            color: #007269;
-            list-style: none;
-        }
-        .file-list li {
-            padding: 6px 0;
-            border-bottom: 1px dashed #b0c4de;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-            display: block;
-        }
-        .file-list li:last-child {
-            border-bottom: none;
-        }
-        .metric-card {
-            background: #f0f4fa;
-            border-radius: 20px;
-            padding: 16px;
-            margin: 20px 0;
-            border-left: 8px solid #FFC600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-        }
-        .metric-label {
-            font-size: 1rem;
-            color: #007269;
-        }
-        .metric-value {
-            font-size: 1.4rem;
-            padding: 6px 18px;
-            border-radius: 40px;
-            background: white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-        .metric-value.aceitavel { color: #2e7d32; background: #e8f5e8; }
-        .metric-value.moderada { color: #b85e00; background: #fff0e0; }
-        .metric-value.critica { color: #b71c1c; background: #ffebee; }
-        
-        .export-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        .export-btn {
+        .add-rua-btn {
             background: #007269;
             color: white;
-            padding: 12px 16px;
+            font-weight: 600;
+            padding: 14px 20px;
             border-radius: 40px;
             border: none;
-            font-weight: 600;
+            font-size: 1.1rem;
             cursor: pointer;
-            flex: 1;
-            min-width: 120px;
-            box-shadow: 0 4px 8px rgba(0,114,105,0.3);
-        }
-        .export-btn:hover {
-            background: #005f56;
-        }
-        .export-btn.secondary {
-            background: #FF671F;
-        }
-        .export-btn.secondary:hover {
-            background: #e55c1a;
-        }
-        
-        .finalize-btn {
-            background: #007269;
-            color: white;
-            font-size: 1.4rem;
-            font-weight: 700;
-            padding: 18px 20px;
-            border: none;
-            border-radius: 60px;
+            margin: 10px 0 20px;
             width: 100%;
-            margin-top: 30px;
-            margin-bottom: 10px;
-            box-shadow: 0 8px 16px rgba(0,114,105,0.3);
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .finalize-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        footer {
-            text-align: center;
-            color: #7f8c8d;
-            font-size: 0.8rem;
-            margin-top: 20px;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        hr {
-            border: 1px solid #e0e7ef;
-            margin: 20px 0;
         }
         .signature-area {
             margin: 20px 0 10px;
@@ -320,9 +234,7 @@
             border: 2px solid #cbd5e1;
             border-radius: 16px;
             touch-action: none;
-            display: block;
-            cursor: crosshair;
-            aspect-ratio: 500 / 200; /* aumentado a altura */
+            aspect-ratio: 500 / 150;
         }
         .signature-actions {
             display: flex;
@@ -337,16 +249,11 @@
             font-weight: 600;
             color: #007269;
             flex: 1;
-            font-size: 1rem;
             cursor: pointer;
         }
         .signature-btn.clear {
             background: #f3d8d8;
             color: #a33b3b;
-        }
-        .signature-btn.undo {
-            background: #fff0e0;
-            color: #b85e00;
         }
         .password-field {
             width: 100%;
@@ -358,6 +265,30 @@
             text-align: center;
             letter-spacing: 4px;
         }
+        .finalize-btn {
+            background: #007269;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+            padding: 18px 20px;
+            border: none;
+            border-radius: 60px;
+            width: 100%;
+            margin-top: 30px;
+            box-shadow: 0 8px 16px rgba(0,114,105,0.3);
+            cursor: pointer;
+        }
+        .finalize-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        footer {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.8rem;
+            margin-top: 20px;
+        }
+        /* Modal de seleção de rua */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -368,42 +299,58 @@
             background: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
         }
         .modal-box {
             background: white;
-            max-width: 300px;
+            max-width: 350px;
             width: 90%;
             border-radius: 28px;
             padding: 24px 20px;
-            text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             border-left: 8px solid #FF671F;
         }
-        .modal-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
+        .modal-box h3 {
+            color: #007269;
+            margin-bottom: 15px;
         }
-        .modal-message {
-            font-size: 1.2rem;
-            color: #1a2b3c;
-            margin-bottom: 20px;
-            font-weight: 500;
+        .modal-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 5px 0;
+            background: #f3f6f9;
+            border-radius: 40px;
+            border: 1px solid #d0dbe8;
+        }
+        .modal-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #007269;
+            margin-right: 10px;
+        }
+        .modal-option.disabled {
+            opacity: 0.5;
+            background: #e0e0e0;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
         }
         .modal-btn {
+            flex: 1;
             background: #007269;
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 60px;
-            font-size: 1.2rem;
+            padding: 12px;
+            border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
-            width: 100%;
-            box-shadow: 0 4px 8px rgba(0,114,105,0.3);
         }
-        .modal-btn:hover {
-            background: #005f56;
+        .modal-btn.cancel {
+            background: #ccc;
+            color: #333;
         }
         .spinner {
             border: 4px solid rgba(0,0,0,0.1);
@@ -414,45 +361,13 @@
             animation: spin 1s linear infinite;
             margin: 10px auto;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .history-list {
-            background: white;
-            border-radius: 16px;
-            padding: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-        .history-item {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        .history-item button {
-            background: #007269;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-        :focus {
-            outline: 3px solid #FFC600;
-            outline-offset: 2px;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>Controle de Layout <span>Carajás</span></h1>
+        <h1>Check List <span>Carajás</span></h1>
     </div>
 
     <div class="manager-card" id="managerCard">
@@ -461,172 +376,82 @@
         <div class="manager-shift" id="currentManagerShift"></div>
     </div>
 
-    <form id="checklistForm">
-        <!-- AVALIAÇÃO DA RUA -->
-        <div class="section-title">Avaliação da rua</div>
-        <div class="question-group">
-            <div class="question" id="q-rua">Qual rua está avaliando? <span class="required-star">*</span></div>
-            <div class="options" aria-labelledby="q-rua">
-                <label class="option-item"><input type="radio" name="rua" value="Rua 8" required> Rua 8</label>
-                <label class="option-item"><input type="radio" name="rua" value="Rua 11"> Rua 11</label>
-                <label class="option-item"><input type="radio" name="rua" value="Rua 12"> Rua 12</label>
-                <label class="option-item"><input type="radio" name="rua" value="Rua 13"> Rua 13</label>
-                <label class="option-item"><input type="radio" name="rua" value="Rua 14"> Rua 14</label>
-            </div>
+    <!-- Container das avaliações de ruas -->
+    <div id="ruasContainer"></div>
 
-            <div class="question" style="margin-top: 20px;" id="q-obstruida">A rua está obstruída? <span class="required-star">*</span></div>
-            <div class="hint">Objetos dificultando a circulação</div>
-            <div class="options" aria-labelledby="q-obstruida">
-                <label class="option-item"><input type="radio" name="obstruida" value="Sim" required> Sim</label>
-                <label class="option-item"><input type="radio" name="obstruida" value="Não"> Não</label>
-            </div>
+    <button class="add-rua-btn" id="addRuaBtn">➕ Adicionar nova rua</button>
 
-            <div class="question" style="margin-top: 20px;" id="q-limpa">Rua está limpa? <span class="required-star">*</span></div>
-            <div class="options" aria-labelledby="q-limpa">
-                <label class="option-item"><input type="radio" name="limpa" value="Sim" required> Sim</label>
-                <label class="option-item"><input type="radio" name="limpa" value="Não"> Não</label>
+    <!-- Seção de assinatura e senha (global) -->
+    <div class="section-title">Finalização do turno</div>
+    <div class="question-group" style="background:white; border-radius:20px; padding:16px;">
+        <div class="question">Assinatura do gerente (opcional)</div>
+        <div class="signature-area">
+            <canvas id="signatureCanvas" class="signature-canvas" width="500" height="150"></canvas>
+            <div class="signature-actions">
+                <button type="button" class="signature-btn" id="undoSignature">↩ Desfazer</button>
+                <button type="button" class="signature-btn clear" id="clearSignature">🗑 Limpar</button>
             </div>
         </div>
-
-        <!-- PALLETS / AVARIAS -->
-        <div class="section-title">Pallets e avarias</div>
-        <div class="question-group">
-            <div class="question" id="q-palletsFora">Existem Pallets fora da demarcação? <span class="required-star">*</span></div>
-            <div class="hint">Linha amarela delimitando armazenamento</div>
-            <div class="options" aria-labelledby="q-palletsFora">
-                <label class="option-item"><input type="radio" name="palletsFora" value="Mais de 5" required> Mais de 5</label>
-                <label class="option-item"><input type="radio" name="palletsFora" value="Menos de 5"> Menos de 5</label>
-                <label class="option-item"><input type="radio" name="palletsFora" value="Não há Pallets para armazenar"> Não há Pallets</label>
-            </div>
-
-            <div class="question" style="margin-top: 20px;" id="q-palletsRua">Existem pallets na rua para serem armazenados? <span class="required-star">*</span></div>
-            <div class="options" aria-labelledby="q-palletsRua">
-                <label class="option-item"><input type="radio" name="palletsRua" value="Sim" required> Sim</label>
-                <label class="option-item"><input type="radio" name="palletsRua" value="Não"> Não</label>
-            </div>
-
-            <div class="question" style="margin-top: 20px;" id="q-avarias">Existem Avarias? <span class="required-star">*</span></div>
-            <div class="options" aria-labelledby="q-avarias">
-                <label class="option-item"><input type="radio" name="avarias" value="Mais de 5" required> Mais de 5</label>
-                <label class="option-item"><input type="radio" name="avarias" value="Menos de 5"> Menos de 5</label>
-                <label class="option-item"><input type="radio" name="avarias" value="Não foi encontrada avarias"> Não encontrada</label>
-            </div>
-        </div>
-
-        <!-- PRÉDIOS / DIVERGÊNCIAS -->
-        <div class="section-title">Instalações e divergências</div>
-        <div class="question-group">
-            <div class="question" id="q-predios">Prédios sinalizados? <span class="required-star">*</span></div>
-            <div class="options" aria-labelledby="q-predios">
-                <label class="option-item"><input type="radio" name="prediosSinalizados" value="Sim" required> Sim</label>
-                <label class="option-item"><input type="radio" name="prediosSinalizados" value="Não"> Não</label>
-                <label class="option-item"><input type="radio" name="prediosSinalizados" value="Parcialmente"> Parcialmente</label>
-            </div>
-
-            <div class="question" style="margin-top: 20px;" id="q-divergencia">Existem divergência de produtos armazenados? <span class="required-star">*</span></div>
-            <div class="hint">Mais de um fornecedor no mesmo endereço?</div>
-            <div class="options" aria-labelledby="q-divergencia">
-                <label class="option-item"><input type="radio" name="divergencia" value="Sim" required> Sim</label>
-                <label class="option-item"><input type="radio" name="divergencia" value="Não"> Não</label>
-            </div>
-        </div>
-
-        <!-- ANEXAR IMAGENS (até 4) - OPCIONAL -->
-        <div class="section-title">Anexar fotos (opcional)</div>
-        <div class="question-group">
-            <div class="question">Anexar imagens da rua (máx 4)</div>
-            <div class="file-area">
-                <label for="ruaImages" class="file-btn">Adicionar arquivos</label>
-                <input type="file" id="ruaImages" accept="image/*" multiple>
-                <div id="imagePreviewContainer" class="image-preview-grid"></div>
-                <ul id="fileList" class="file-list">
-                    <li>Nenhuma imagem selecionada</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- MÉTRICA AUTOMÁTICA -->
-        <div class="section-title">Classificação da situação</div>
-        <div class="metric-card" id="metricCard">
-            <span class="metric-label">Status atual:</span>
-            <span class="metric-value" id="metricValue">Aguardando respostas</span>
-        </div>
-
-        <!-- ASSINATURA E SENHA -->
-        <div class="section-title">Finalização do turno</div>
-        <div class="question-group">
-            <div class="question">Assinatura do gerente (opcional)</div>
-            <div class="signature-area">
-                <canvas id="signatureCanvas" class="signature-canvas" width="500" height="200"></canvas>
-                <div class="signature-actions">
-                    <button type="button" class="signature-btn undo" id="undoSignature">Desfazer</button>
-                    <button type="button" class="signature-btn clear" id="clearSignature">Limpar</button>
-                </div>
-                <p style="font-size:0.8rem; color:#888; margin-top:8px;">Assine dentro da área (não obrigatório)</p>
-            </div>
-
-            <div class="question" style="margin-top: 20px;">Senha de validação <span class="required-star">*</span></div>
-            <input type="password" id="senhaValidacao" class="password-field" placeholder="****" maxlength="4" inputmode="numeric" pattern="\d*" aria-label="Senha numérica de 4 dígitos">
-        </div>
-
-        <hr>
-        <p style="color:#6c7a89; font-size:0.9rem; text-align:center;">* Campos obrigatórios</p>
-
-        <button type="button" class="finalize-btn" id="finalizeBtn">🔒 Finalizar Checklist</button>
-    </form>
-
-    <!-- RESUMO -->
-    <div id="summarySection" style="display: none; margin-top: 20px;">
-        <div class="section-title">Resumo do Checklist</div>
-        <div class="question-group" id="summaryContent"></div>
-        <div class="export-buttons">
-            <button class="export-btn" id="downloadPdfBtn">📄 Baixar PDF</button>
-            <button class="export-btn secondary" id="downloadPngBtn">🖼️ Baixar PNG</button>
-            <button class="export-btn" id="downloadCsvBtn">📊 Baixar CSV</button>
-        </div>
+        <div class="question">Senha de validação <span class="required-star">*</span></div>
+        <input type="password" id="senhaValidacao" class="password-field" placeholder="****" maxlength="4" inputmode="numeric">
     </div>
 
-    <!-- HISTÓRICO -->
-    <div class="section-title">Histórico de Checklists</div>
-    <div class="question-group">
-        <div id="historyContainer" class="history-list"></div>
-        <button class="export-btn" id="clearHistoryBtn" style="margin-top: 10px;">Limpar Histórico</button>
-    </div>
-
-    <footer>Controle de Layout - Carajás • versão móvel</footer>
+    <button class="finalize-btn" id="finalizeBtn">🔒 Finalizar Checklist (Gerar PDF Consolidado)</button>
+    <footer>Controle de Layout - Carajás • Múltiplas Ruas</footer>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal-box" id="modalBox">
-        <div class="modal-icon" id="modalIcon">⚠️</div>
-        <div class="modal-message" id="modalMessage">Mensagem</div>
-        <button class="modal-btn" id="modalOkBtn">OK</button>
+<!-- Modal de seleção de rua -->
+<div class="modal-overlay" id="ruaModal">
+    <div class="modal-box">
+        <h3>Selecione a rua</h3>
+        <div id="modalOptionsContainer"></div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" id="modalCancel">Cancelar</button>
+            <button class="modal-btn" id="modalConfirm">Confirmar</button>
+        </div>
     </div>
 </div>
 
 <script>
     (function() {
-        // ========== MODAL ==========
-        const modalOverlay = document.getElementById('modalOverlay');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalIcon = document.getElementById('modalIcon');
-        const modalOkBtn = document.getElementById('modalOkBtn');
+        // ========== MODAL DE SELEÇÃO DE RUA ==========
+        const ruaModal = document.getElementById('ruaModal');
+        const modalOptions = document.getElementById('modalOptionsContainer');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const modalCancel = document.getElementById('modalCancel');
+        const ruasDisponiveis = ['Rua 8', 'Rua 11', 'Rua 12', 'Rua 13', 'Rua 14'];
+        let currentResolve = null;
 
-        function showModal(message, type = 'info') {
-            let icon = 'ℹ️';
-            if (type === 'erro') icon = '❌';
-            else if (type === 'sucesso') icon = '✅';
-            else if (type === 'aviso') icon = '⚠️';
-            modalIcon.innerText = icon;
-            modalMessage.innerText = message;
-            modalOverlay.style.display = 'flex';
+        function abrirModalSelecaoRua(ruasUsadas) {
+            return new Promise((resolve) => {
+                currentResolve = resolve;
+                let html = '';
+                ruasDisponiveis.forEach(rua => {
+                    const disabled = ruasUsadas.includes(rua) ? 'disabled' : '';
+                    html += `<div class="modal-option ${disabled ? 'disabled' : ''}">
+                        <input type="radio" name="modalRua" value="${rua}" ${disabled} id="rua_${rua.replace(' ','')}">
+                        <label for="rua_${rua.replace(' ','')}">${rua}</label>
+                    </div>`;
+                });
+                modalOptions.innerHTML = html;
+                ruaModal.style.display = 'flex';
+
+                modalConfirm.onclick = () => {
+                    const selecionado = document.querySelector('input[name="modalRua"]:checked');
+                    if (!selecionado) {
+                        alert('Selecione uma rua.');
+                        return;
+                    }
+                    ruaModal.style.display = 'none';
+                    currentResolve(selecionado.value);
+                };
+
+                modalCancel.onclick = () => {
+                    ruaModal.style.display = 'none';
+                    currentResolve(null);
+                };
+            });
         }
-
-        modalOkBtn.addEventListener('click', () => modalOverlay.style.display = 'none');
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) modalOverlay.style.display = 'none';
-        });
 
         // ========== TURNOS ==========
         const managers = [
@@ -634,52 +459,154 @@
             { name: "Amanda Bertulino", shift: "14:00 – 22:00", start: 14, end: 22, password: "2222" },
             { name: "Christopher Borges", shift: "22:00 – 06:00", start: 22, end: 6, password: "3333" }
         ];
-
         function getCurrentManager() {
-            const now = new Date();
-            const hour = now.getHours();
+            const hour = new Date().getHours();
             for (let m of managers) {
-                if (m.start < m.end) {
-                    if (hour >= m.start && hour < m.end) return m;
-                } else {
-                    if (hour >= m.start || hour < m.end) return m;
-                }
+                if (m.start < m.end) { if (hour >= m.start && hour < m.end) return m; }
+                else { if (hour >= m.start || hour < m.end) return m; }
             }
             return managers[0];
         }
-
         function updateManagerUI() {
-            const manager = getCurrentManager();
-            document.getElementById('currentManagerName').innerText = manager.name;
-            document.getElementById('currentManagerShift').innerText = `Turno • ${manager.shift}`;
-            return manager;
+            const m = getCurrentManager();
+            document.getElementById('currentManagerName').innerText = m.name;
+            document.getElementById('currentManagerShift').innerText = `Turno • ${m.shift}`;
+            return m;
         }
 
-        // ========== GERENCIAMENTO DE IMAGENS ==========
-        const fileInput = document.getElementById('ruaImages');
-        const fileListEl = document.getElementById('fileList');
-        const previewContainer = document.getElementById('imagePreviewContainer');
-        let imageFiles = []; // { file, dataURL }
+        // ========== GERENCIAMENTO DAS RUAS ==========
+        const ruasContainer = document.getElementById('ruasContainer');
+        let ruasData = [];
 
-        fileInput.addEventListener('change', async function(e) {
-            let files = Array.from(e.target.files);
-            if (files.length > 4) {
-                showModal('Máximo permitido: 4 imagens. Apenas as primeiras 4 serão consideradas.', 'aviso');
-                files = files.slice(0, 4);
-            }
-            // Atualizar input com os arquivos permitidos
-            const dt = new DataTransfer();
-            files.forEach(f => dt.items.add(f));
-            fileInput.files = dt.files;
+        function getRuasUsadas() {
+            return ruasData.map(card => card.ruaSelecionada).filter(r => r);
+        }
 
-            imageFiles = [];
-            for (let file of files) {
-                const dataURL = await readFileAsDataURL(file);
-                imageFiles.push({ file, dataURL });
+        async function adicionarRua() {
+            const ruasUsadas = getRuasUsadas();
+            const ruaEscolhida = await abrirModalSelecaoRua(ruasUsadas);
+            if (!ruaEscolhida) return;
+
+            const index = ruasData.length;
+            const card = document.createElement('div');
+            card.className = 'rua-card';
+            card.innerHTML = `
+                <h3>${ruaEscolhida}</h3>
+                <button class="remove-rua">✕</button>
+                <div class="question">A rua está obstruída? <span class="required-star">*</span></div>
+                <div class="hint">Objetos dificultando a circulação</div>
+                <div class="options">
+                    <label class="option-item"><input type="radio" name="obstruida_${index}" value="Sim" required> Sim</label>
+                    <label class="option-item"><input type="radio" name="obstruida_${index}" value="Não"> Não</label>
+                </div>
+                <div class="question">Rua está limpa? <span class="required-star">*</span></div>
+                <div class="options">
+                    <label class="option-item"><input type="radio" name="limpa_${index}" value="Sim" required> Sim</label>
+                    <label class="option-item"><input type="radio" name="limpa_${index}" value="Não"> Não</label>
+                </div>
+                <div class="question">Existem Pallets fora da demarcação? <span class="required-star">*</span></div>
+                <div class="hint">Linha amarela delimitando armazenamento</div>
+                <div class="options">
+                    <label class="option-item"><input type="radio" name="palletsFora_${index}" value="Mais de 5" required> Mais de 5</label>
+                    <label class="option-item"><input type="radio" name="palletsFora_${index}" value="Menos de 5"> Menos de 5</label>
+                    <label class="option-item"><input type="radio" name="palletsFora_${index}" value="Não há Pallets para armazenar"> Não há Pallets</label>
+                </div>
+                <div class="question">Existem pallets na rua para serem armazenados? <span class="required-star">*</span></div>
+                <div class="options">
+                    <label class="option-item"><input type="radio" name="palletsRua_${index}" value="Sim" required> Sim</label>
+                    <label class="option-item"><input type="radio" name="palletsRua_${index}" value="Não"> Não</label>
+                </div>
+                <div class="question">Existem Avarias? <span class="required-star">*</span></div>
+                <div class="options">
+                    <label class="option-item"><input type="radio" name="avarias_${index}" value="Mais de 5" required> Mais de 5</label>
+                    <label class="option-item"><input type="radio" name="avarias_${index}" value="Menos de 5"> Menos de 5</label>
+                    <label class="option-item"><input type="radio" name="avarias_${index}" value="Não foi encontrada avarias"> Não encontrada</label>
+                </div>
+                <div class="question">Prédios sinalizados? <span class="required-star">*</span></div>
+                <div class="options">
+                    <label class="option-item"><input type="radio" name="prediosSinalizados_${index}" value="Sim" required> Sim</label>
+                    <label class="option-item"><input type="radio" name="prediosSinalizados_${index}" value="Não"> Não</label>
+                    <label class="option-item"><input type="radio" name="prediosSinalizados_${index}" value="Parcialmente"> Parcialmente</label>
+                </div>
+                <div class="question">Existem divergência de produtos armazenados? <span class="required-star">*</span></div>
+                <div class="hint">Mais de um fornecedor no mesmo endereço?</div>
+                <div class="options">
+                    <label class="option-item"><input type="radio" name="divergencia_${index}" value="Sim" required> Sim</label>
+                    <label class="option-item"><input type="radio" name="divergencia_${index}" value="Não"> Não</label>
+                </div>
+                <div class="question">Anexar fotos (máx 4)</div>
+                <div class="file-area">
+                    <label class="file-btn" for="fileInput_${index}">Adicionar arquivos</label>
+                    <input type="file" id="fileInput_${index}" accept="image/*" multiple style="display:none;">
+                    <div class="image-preview-grid" id="preview_${index}"></div>
+                </div>
+            `;
+
+            ruasContainer.appendChild(card);
+
+            const cardData = {
+                element: card,
+                ruaSelecionada: ruaEscolhida,
+                images: [],
+                fileInput: card.querySelector(`#fileInput_${index}`),
+                previewDiv: card.querySelector(`#preview_${index}`)
+            };
+            ruasData.push(cardData);
+
+            cardData.fileInput.addEventListener('change', async function(e) {
+                let files = Array.from(e.target.files);
+                if (files.length > 4) {
+                    alert('Máximo 4 imagens. Primeiras 4 serão usadas.');
+                    files = files.slice(0, 4);
+                }
+                cardData.images = [];
+                for (let file of files) {
+                    const dataURL = await readFileAsDataURL(file);
+                    cardData.images.push({ file, dataURL });
+                }
+                atualizarPreview(cardData);
+                const dt = new DataTransfer();
+                cardData.images.forEach(img => dt.items.add(img.file));
+                cardData.fileInput.files = dt.files;
+            });
+
+            card.querySelector('.remove-rua').addEventListener('click', function() {
+                if (ruasData.length > 1) {
+                    const idx = ruasData.indexOf(cardData);
+                    ruasData.splice(idx, 1);
+                    card.remove();
+                } else {
+                    alert('É necessário pelo menos uma rua.');
+                }
+            });
+        }
+
+        function atualizarPreview(cardData) {
+            const container = cardData.previewDiv;
+            if (cardData.images.length === 0) {
+                container.innerHTML = '';
+                return;
             }
-            updatePreviews();
-            updateFileList();
-        });
+            let html = '';
+            cardData.images.forEach((img, idx) => {
+                html += `<div class="preview-item">
+                    <img src="${img.dataURL}" alt="preview">
+                    <button class="remove-img" data-index="${idx}">✕</button>
+                </div>`;
+            });
+            container.innerHTML = html;
+            container.querySelectorAll('.remove-img').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const i = parseInt(this.dataset.index);
+                    cardData.images.splice(i, 1);
+                    atualizarPreview(cardData);
+                    const dt = new DataTransfer();
+                    cardData.images.forEach(img => dt.items.add(img.file));
+                    cardData.fileInput.files = dt.files;
+                });
+            });
+        }
 
         function readFileAsDataURL(file) {
             return new Promise(resolve => {
@@ -689,47 +616,17 @@
             });
         }
 
-        function updatePreviews() {
-            if (imageFiles.length === 0) {
-                previewContainer.innerHTML = '';
-                return;
-            }
-            let html = '';
-            imageFiles.forEach((img, index) => {
-                html += `<div class="preview-item">
-                    <img src="${img.dataURL}" alt="Preview ${index+1}">
-                    <button class="remove-img" data-index="${index}">✕</button>
-                </div>`;
-            });
-            previewContainer.innerHTML = html;
-            document.querySelectorAll('.remove-img').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const index = parseInt(this.dataset.index);
-                    removeImage(index);
-                });
-            });
-        }
+        window.addEventListener('load', async function() {
+            updateManagerUI();
+            initCanvas();
+            setTimeout(async () => {
+                await adicionarRua();
+            }, 100);
+        });
 
-        function removeImage(index) {
-            imageFiles.splice(index, 1);
-            const dt = new DataTransfer();
-            imageFiles.forEach(img => dt.items.add(img.file));
-            fileInput.files = dt.files;
-            updatePreviews();
-            updateFileList();
-        }
+        document.getElementById('addRuaBtn').addEventListener('click', adicionarRua);
 
-        function updateFileList() {
-            if (imageFiles.length === 0) {
-                fileListEl.innerHTML = '<li>Nenhuma imagem selecionada</li>';
-                return;
-            }
-            const items = imageFiles.map((f, index) => `<li>${index+1}. ${f.file.name}</li>`).join('');
-            fileListEl.innerHTML = items;
-        }
-
-        // ========== ASSINATURA ==========
+        // ========== ASSINATURA CANVAS ==========
         const canvas = document.getElementById('signatureCanvas');
         const ctx = canvas.getContext('2d');
         let signatureDrawn = false;
@@ -740,13 +637,10 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
             ctx.strokeStyle = '#007269';
             signatureDrawn = false;
-            undoStack = [];
-            saveState();
+            undoStack = [canvas.toDataURL()];
         }
-        initCanvas();
 
         function saveState() {
             undoStack.push(canvas.toDataURL());
@@ -799,412 +693,214 @@
         canvas.addEventListener('touchstart', startDrawing, { passive: false });
         canvas.addEventListener('touchmove', draw, { passive: false });
         canvas.addEventListener('touchend', stopDrawing);
-        canvas.addEventListener('touchcancel', stopDrawing);
 
         document.getElementById('undoSignature').addEventListener('click', function() {
             if (undoStack.length > 1) {
                 undoStack.pop();
-                const prevState = undoStack[undoStack.length - 1];
                 const img = new Image();
-                img.src = prevState;
+                img.src = undoStack[undoStack.length-1];
                 img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    ctx.drawImage(img,0,0,canvas.width,canvas.height);
                 };
                 signatureDrawn = undoStack.length > 1;
             } else {
-                showModal('Nada para desfazer.', 'aviso');
+                alert('Nada para desfazer.');
             }
         });
 
         document.getElementById('clearSignature').addEventListener('click', function() {
-            showModal('Tem certeza que deseja limpar a assinatura?', 'aviso');
-            const originalOk = modalOkBtn.onclick;
-            modalOkBtn.onclick = function() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (confirm('Tem certeza que deseja limpar a assinatura?')) {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
                 ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0,0,canvas.width,canvas.height);
                 signatureDrawn = false;
-                undoStack = [];
-                saveState();
-                modalOverlay.style.display = 'none';
-                modalOkBtn.onclick = originalOk;
-            };
-        });
-
-        // ========== MÉTRICA ==========
-        function calculateScore() {
-            let score = 0;
-            if (document.querySelector('input[name="obstruida"]:checked')?.value === 'Sim') score += 2;
-            if (document.querySelector('input[name="limpa"]:checked')?.value === 'Não') score += 2;
-            const palletsFora = document.querySelector('input[name="palletsFora"]:checked')?.value;
-            if (palletsFora === 'Mais de 5') score += 3;
-            else if (palletsFora === 'Menos de 5') score += 1;
-            if (document.querySelector('input[name="palletsRua"]:checked')?.value === 'Sim') score += 1;
-            const avarias = document.querySelector('input[name="avarias"]:checked')?.value;
-            if (avarias === 'Mais de 5') score += 3;
-            else if (avarias === 'Menos de 5') score += 1;
-            const predios = document.querySelector('input[name="prediosSinalizados"]:checked')?.value;
-            if (predios === 'Não') score += 2;
-            else if (predios === 'Parcialmente') score += 1;
-            if (document.querySelector('input[name="divergencia"]:checked')?.value === 'Sim') score += 2;
-            return score;
-        }
-
-        function getMetricClass(score) {
-            if (score <= 3) return { text: 'Aceitável', class: 'aceitavel' };
-            if (score <= 7) return { text: 'Moderada', class: 'moderada' };
-            return { text: 'Crítica', class: 'critica' };
-        }
-
-        function updateMetric() {
-            const score = calculateScore();
-            const metric = getMetricClass(score);
-            const metricEl = document.getElementById('metricValue');
-            metricEl.innerText = metric.text;
-            metricEl.className = `metric-value ${metric.class}`;
-        }
-
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', updateMetric);
-        });
-
-        // ========== COLETA DE DADOS ==========
-        function collectFormData() {
-            const data = {};
-            data.rua = document.querySelector('input[name="rua"]:checked')?.value || '';
-            data.obstruida = document.querySelector('input[name="obstruida"]:checked')?.value || '';
-            data.limpa = document.querySelector('input[name="limpa"]:checked')?.value || '';
-            data.palletsFora = document.querySelector('input[name="palletsFora"]:checked')?.value || '';
-            data.palletsRua = document.querySelector('input[name="palletsRua"]:checked')?.value || '';
-            data.avarias = document.querySelector('input[name="avarias"]:checked')?.value || '';
-            data.prediosSinalizados = document.querySelector('input[name="prediosSinalizados"]:checked')?.value || '';
-            data.divergencia = document.querySelector('input[name="divergencia"]:checked')?.value || '';
-            data.assinaturaFeita = signatureDrawn;
-            const score = calculateScore();
-            const metric = getMetricClass(score);
-            data.metrica = metric.text;
-            data.pontuacao = score;
-            data.manager = getCurrentManager();
-            data.dataHora = new Date().toLocaleString('pt-BR');
-            data.fotos = imageFiles.map(f => f.file.name);
-            return data;
-        }
-
-        function validateRequired() {
-            const radioNames = ['rua', 'obstruida', 'limpa', 'palletsFora', 'palletsRua', 'avarias', 'prediosSinalizados', 'divergencia'];
-            for (let name of radioNames) {
-                if (!document.querySelector(`input[name="${name}"]:checked`)) return false;
+                undoStack = [canvas.toDataURL()];
             }
-            return document.getElementById('senhaValidacao').value.trim() !== '';
+        });
+
+        // ========== FUNÇÕES DE COLETA E VALIDAÇÃO ==========
+        function collectAllData() {
+            const manager = getCurrentManager();
+            const ruas = [];
+            let allValid = true;
+
+            ruasData.forEach(card => {
+                if (!card.ruaSelecionada) {
+                    allValid = false;
+                    return;
+                }
+
+                const obstruida = card.element.querySelector('input[name^="obstruida_"]:checked')?.value;
+                const limpa = card.element.querySelector('input[name^="limpa_"]:checked')?.value;
+                const palletsFora = card.element.querySelector('input[name^="palletsFora_"]:checked')?.value;
+                const palletsRua = card.element.querySelector('input[name^="palletsRua_"]:checked')?.value;
+                const avarias = card.element.querySelector('input[name^="avarias_"]:checked')?.value;
+                const predios = card.element.querySelector('input[name^="prediosSinalizados_"]:checked')?.value;
+                const divergencia = card.element.querySelector('input[name^="divergencia_"]:checked')?.value;
+
+                if (!obstruida || !limpa || !palletsFora || !palletsRua || !avarias || !predios || !divergencia) {
+                    allValid = false;
+                    return;
+                }
+
+                let score = 0;
+                if (obstruida === 'Sim') score += 2;
+                if (limpa === 'Não') score += 2;
+                if (palletsFora === 'Mais de 5') score += 3;
+                else if (palletsFora === 'Menos de 5') score += 1;
+                if (palletsRua === 'Sim') score += 1;
+                if (avarias === 'Mais de 5') score += 3;
+                else if (avarias === 'Menos de 5') score += 1;
+                if (predios === 'Não') score += 2;
+                else if (predios === 'Parcialmente') score += 1;
+                if (divergencia === 'Sim') score += 2;
+
+                let classificacao = 'Aceitável';
+                if (score > 3) classificacao = 'Moderada';
+                if (score > 7) classificacao = 'Crítica';
+
+                ruas.push({
+                    rua: card.ruaSelecionada,
+                    obstruida,
+                    limpa,
+                    palletsFora,
+                    palletsRua,
+                    avarias,
+                    predios,
+                    divergencia,
+                    pontuacao: score,
+                    classificacao,
+                    images: card.images.map(img => ({ name: img.file.name, dataURL: img.dataURL }))
+                });
+            });
+
+            return { manager, ruas, allValid };
         }
 
-        // ========== GERAR PDF ==========
-        async function generatePDF(data, manager, signatureDataURL) {
+        // ========== GERAR PDF CONSOLIDADO COM RODAPÉ EM TODAS AS PÁGINAS ==========
+        async function generateConsolidatedPDF(data, signatureDataURL) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const dateStr = data.dataHora;
+            const manager = data.manager;
+            const dateStr = new Date().toLocaleString('pt-BR');
+            const totalPages = data.ruas.length + data.ruas.reduce((acc, r) => acc + r.images.length, 0); // páginas de ruas + fotos (cada foto uma página)
 
-            doc.setFillColor(0, 114, 105);
-            doc.rect(0, 0, 210, 20, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Controle de Layout - Carajás', 14, 14);
+            // Função para adicionar rodapé na página atual
+            function addFooter() {
+                const pageWidth = doc.internal.pageSize.width;
+                const pageHeight = doc.internal.pageSize.height;
+                const margin = 14;
+                const footerY = pageHeight - 15; // 15mm do fim
 
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Gerente: ${manager.name} (${manager.shift})`, 14, 30);
-            doc.text(`Data/hora: ${dateStr}`, 14, 37);
+                doc.setDrawColor(200,200,200);
+                doc.line(margin, footerY - 3, pageWidth - margin, footerY - 3);
 
-            doc.setDrawColor(200, 200, 200);
-            doc.line(14, 42, 196, 42);
-
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Avaliações:', 14, 52);
-            doc.setFont('helvetica', 'normal');
-
-            const fields = [
-                { label: 'Rua avaliada', value: data.rua },
-                { label: 'Obstruída', value: data.obstruida },
-                { label: 'Limpa', value: data.limpa },
-                { label: 'Pallets fora', value: data.palletsFora },
-                { label: 'Pallets na rua', value: data.palletsRua },
-                { label: 'Avarias', value: data.avarias },
-                { label: 'Prédios sinalizados', value: data.prediosSinalizados },
-                { label: 'Divergência', value: data.divergencia },
-                { label: 'Assinatura', value: data.assinaturaFeita ? 'Sim' : 'Não' }
-            ];
-
-            let y = 60;
-            const colX = 14;
-            const col2X = 110;
-            let col = 0;
-            for (let f of fields) {
-                const xPos = col === 0 ? colX : col2X;
-                doc.text(`${f.label}:`, xPos, y);
-                doc.setFont('helvetica', 'bold');
-                doc.text(f.value, xPos + 45, y);
-                doc.setFont('helvetica', 'normal');
-                col = (col + 1) % 2;
-                if (col === 0) y += 7;
-            }
-            if (col === 1) y += 7;
-
-            doc.setFont('helvetica', 'bold');
-            doc.text('Classificação:', 14, y);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`${data.metrica} (pontuação: ${data.pontuacao})`, 14 + 30, y);
-            y += 8;
-
-            doc.line(14, y, 196, y);
-            y += 6;
-
-            if (signatureDataURL && data.assinaturaFeita) {
-                if (y > 250) {
-                    doc.addPage();
-                    y = 20;
+                // Se tiver assinatura, coloca no rodapé
+                if (signatureDataURL && signatureDrawn) {
+                    // Redimensionar assinatura para altura 10mm
+                    const sigHeight = 10;
+                    const sigWidth = (canvas.width / canvas.height) * sigHeight; // proporção
+                    doc.addImage(signatureDataURL, 'PNG', margin, footerY - sigHeight, sigWidth, sigHeight);
+                    // Texto ao lado
+                    doc.setFontSize(8);
+                    doc.text(`Assinado por: ${manager.name} - ${dateStr}`, margin + sigWidth + 5, footerY - 2);
+                } else {
+                    doc.setFontSize(8);
+                    doc.text(`Documento gerado por: ${manager.name} - ${dateStr}`, margin, footerY - 2);
                 }
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text('Assinatura do gerente:', 14, y);
-                y += 5;
-                doc.addImage(signatureDataURL, 'PNG', 14, y, 80, 30);
-                y += 35;
             }
 
-            // Adicionar imagens anexadas
-            if (imageFiles.length > 0) {
-                for (let i = 0; i < imageFiles.length; i++) {
+            // Para cada rua
+            for (let i = 0; i < data.ruas.length; i++) {
+                if (i > 0) doc.addPage();
+                const r = data.ruas[i];
+
+                doc.setFillColor(0, 114, 105);
+                doc.rect(0, 0, 210, 20, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(16);
+                doc.text('Controle de Layout - Carajás', 14, 14);
+
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(10);
+                doc.text(`Gerente: ${manager.name} (${manager.shift})`, 14, 30);
+                doc.text(`Data: ${dateStr}`, 14, 37);
+                doc.text(`Rua: ${r.rua}`, 14, 44);
+
+                doc.line(14, 48, 196, 48);
+
+                let y = 58;
+                const fields = [
+                    ['Obstruída', r.obstruida],
+                    ['Limpa', r.limpa],
+                    ['Pallets fora', r.palletsFora],
+                    ['Pallets na rua', r.palletsRua],
+                    ['Avarias', r.avarias],
+                    ['Prédios sinalizados', r.predios],
+                    ['Divergência', r.divergencia],
+                    ['Classificação', `${r.classificacao} (${r.pontuacao} pts)`]
+                ];
+                fields.forEach(([label, value]) => {
+                    doc.text(`${label}: ${value}`, 14, y);
+                    y += 7;
+                });
+
+                // Se houver fotos, já adicionamos páginas extras depois
+                // Agora adiciona rodapé na página atual
+                addFooter();
+
+                // Páginas de fotos para esta rua
+                for (let j = 0; j < r.images.length; j++) {
                     doc.addPage();
                     doc.setFillColor(0, 114, 105);
                     doc.rect(0, 0, 210, 15, 'F');
                     doc.setTextColor(255, 255, 255);
                     doc.setFontSize(12);
-                    doc.setFont('helvetica', 'bold');
-                    let fileName = imageFiles[i].file.name;
-                    if (fileName.length > 40) fileName = fileName.substring(0, 37) + '...';
-                    doc.text(`Foto ${i+1}: ${fileName}`, 14, 11);
+                    doc.text(`Foto ${j+1} - ${r.rua}`, 14, 11);
                     doc.setTextColor(0, 0, 0);
-                    
-                    // Detectar formato da imagem (JPEG ou PNG)
-                    const imgData = imageFiles[i].dataURL;
-                    const imgFormat = imgData.split(';')[0].split('/')[1]; // 'png' ou 'jpeg'
-                    try {
-                        doc.addImage(imgData, imgFormat, 10, 20, 190, 0, undefined, 'FAST');
-                    } catch (e) {
-                        console.error('Erro ao adicionar imagem ao PDF:', e);
-                        doc.text('Erro ao carregar imagem', 10, 30);
-                    }
+                    doc.addImage(r.images[j].dataURL, 'JPEG', 10, 20, 190, 0, undefined, 'FAST');
+                    addFooter();
                 }
             }
-            return doc;
+
+            // Se houver assinatura mas nenhuma rua (nunca) - não precisa
+            doc.save(`checklist_${manager.name.replace(' ','_')}_${Date.now()}.pdf`);
         }
-
-        // ========== EXPORTAÇÃO PNG (com imagens e assinatura) ==========
-        async function exportAsPNG(data, manager) {
-            const signatureDataURL = data.assinaturaFeita ? canvas.toDataURL('image/png') : null;
-
-            const element = document.createElement('div');
-            element.style.background = 'white';
-            element.style.padding = '20px';
-            element.style.maxWidth = '600px';
-            element.style.fontFamily = 'Segoe UI';
-            element.style.boxSizing = 'border-box';
-
-            let html = `
-                <h2 style="color:#007269;">Controle de Layout - Carajás</h2>
-                <p><strong>Gerente:</strong> ${manager.name} (${manager.shift})</p>
-                <p><strong>Data/hora:</strong> ${data.dataHora}</p>
-                <hr>
-                <p><strong>Rua:</strong> ${data.rua}</p>
-                <p><strong>Obstruída:</strong> ${data.obstruida}</p>
-                <p><strong>Limpa:</strong> ${data.limpa}</p>
-                <p><strong>Pallets fora:</strong> ${data.palletsFora}</p>
-                <p><strong>Pallets na rua:</strong> ${data.palletsRua}</p>
-                <p><strong>Avarias:</strong> ${data.avarias}</p>
-                <p><strong>Prédios sinalizados:</strong> ${data.prediosSinalizados}</p>
-                <p><strong>Divergência:</strong> ${data.divergencia}</p>
-                <p><strong>Classificação:</strong> ${data.metrica} (${data.pontuacao} pontos)</p>
-            `;
-
-            if (signatureDataURL) {
-                html += `
-                    <div style="margin-top:15px;">
-                        <strong>Assinatura:</strong><br>
-                        <img src="${signatureDataURL}" style="max-width:100%; height:auto; border:1px solid #ccc;">
-                    </div>
-                `;
-            }
-
-            if (imageFiles.length > 0) {
-                html += `<div style="margin-top:15px;"><strong>Fotos anexadas:</strong></div>`;
-                html += `<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top:5px;">`;
-                for (let i = 0; i < imageFiles.length; i++) {
-                    html += `<div style="width:120px; text-align:center;">
-                        <img src="${imageFiles[i].dataURL}" style="width:100%; height:90px; object-fit:cover; border:1px solid #ccc; border-radius:8px;">
-                        <div style="font-size:0.7rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${imageFiles[i].file.name}</div>
-                    </div>`;
-                }
-                html += `</div>`;
-            }
-
-            element.innerHTML = html;
-            document.body.appendChild(element);
-
-            const canvasImg = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
-            document.body.removeChild(element);
-
-            const link = document.createElement('a');
-            link.download = `checklist_${manager.name.replace(' ', '_')}.png`;
-            link.href = canvasImg.toDataURL('image/png');
-            link.click();
-        }
-
-        // ========== EXPORTAÇÃO CSV ==========
-        function exportAsCSV(data, manager) {
-            const headers = ['Gerente', 'Turno', 'Data/Hora', 'Rua', 'Obstruída', 'Limpa', 'Pallets fora', 'Pallets na rua', 'Avarias', 'Prédios', 'Divergência', 'Assinatura', 'Classificação', 'Pontuação'];
-            const values = [
-                manager.name,
-                manager.shift,
-                data.dataHora,
-                data.rua,
-                data.obstruida,
-                data.limpa,
-                data.palletsFora,
-                data.palletsRua,
-                data.avarias,
-                data.prediosSinalizados,
-                data.divergencia,
-                data.assinaturaFeita ? 'Sim' : 'Não',
-                data.metrica,
-                data.pontuacao
-            ];
-            const csv = [headers.join(';'), values.join(';')].join('\n');
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `checklist_${manager.name.replace(' ', '_')}.csv`;
-            link.click();
-        }
-
-        // ========== HISTÓRICO ==========
-        const STORAGE_KEY = 'checklist_history';
-
-        function loadHistory() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            return stored ? JSON.parse(stored) : [];
-        }
-
-        function saveHistory(entry) {
-            const history = loadHistory();
-            history.unshift(entry);
-            if (history.length > 20) history.pop();
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const history = loadHistory();
-            const container = document.getElementById('historyContainer');
-            if (history.length === 0) {
-                container.innerHTML = '<p>Nenhum checklist salvo.</p>';
-                return;
-            }
-            let html = '';
-            history.forEach((entry, idx) => {
-                html += `<div class="history-item">
-                    <span>${entry.dataHora} - ${entry.manager.name} (${entry.metrica})</span>
-                    <button data-index="${idx}">📄 PDF</button>
-                </div>`;
-            });
-            container.innerHTML = html;
-            container.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = this.dataset.index;
-                    const entry = history[index];
-                    const manager = managers.find(m => m.name === entry.manager.name) || managers[0];
-                    generatePDF(entry, manager, null).then(doc => doc.save(`checklist_${manager.name.replace(' ', '_')}_${Date.now()}.pdf`));
-                });
-            });
-        }
-
-        document.getElementById('clearHistoryBtn').addEventListener('click', function() {
-            localStorage.removeItem(STORAGE_KEY);
-            renderHistory();
-            showModal('Histórico limpo!', 'sucesso');
-        });
 
         // ========== FINALIZAR ==========
         const finalizeBtn = document.getElementById('finalizeBtn');
         finalizeBtn.addEventListener('click', async function() {
             const manager = getCurrentManager();
-
-            if (!validateRequired()) {
-                showModal('Preencha todos os campos obrigatórios (*) e digite a senha.', 'erro');
+            const senha = document.getElementById('senhaValidacao').value.trim();
+            if (!senha) {
+                alert('Digite a senha.');
+                return;
+            }
+            if (senha !== manager.password) {
+                alert('Senha incorreta!');
                 return;
             }
 
-            const senhaDigitada = document.getElementById('senhaValidacao').value.trim();
-            if (senhaDigitada !== manager.password) {
-                showModal('Senha incorreta! O checklist NÃO foi finalizado.', 'erro');
+            const data = collectAllData();
+            if (!data.allValid) {
+                alert('Preencha todas as perguntas obrigatórias em todos os cards.');
                 return;
             }
 
             finalizeBtn.disabled = true;
             finalizeBtn.innerHTML = '<span class="spinner"></span> Gerando...';
 
-            const formData = collectFormData();
-            const signatureDataURL = formData.assinaturaFeita ? canvas.toDataURL('image/png') : null;
-
-            const doc = await generatePDF(formData, manager, signatureDataURL);
-            doc.save(`checklist_${manager.name.replace(' ', '_')}_${Date.now()}.pdf`);
-
-            const historyEntry = {
-                ...formData,
-                manager: { name: manager.name, shift: manager.shift },
-                dataHora: formData.dataHora,
-            };
-            saveHistory(historyEntry);
-
-            const summaryDiv = document.getElementById('summarySection');
-            const summaryContent = document.getElementById('summaryContent');
-            summaryContent.innerHTML = `
-                <p><strong>Gerente:</strong> ${manager.name} (${manager.shift})</p>
-                <p><strong>Data/hora:</strong> ${formData.dataHora}</p>
-                <p><strong>Rua:</strong> ${formData.rua}</p>
-                <p><strong>Obstruída:</strong> ${formData.obstruida}</p>
-                <p><strong>Limpa:</strong> ${formData.limpa}</p>
-                <p><strong>Pallets fora:</strong> ${formData.palletsFora}</p>
-                <p><strong>Pallets na rua:</strong> ${formData.palletsRua}</p>
-                <p><strong>Avarias:</strong> ${formData.avarias}</p>
-                <p><strong>Prédios sinalizados:</strong> ${formData.prediosSinalizados}</p>
-                <p><strong>Divergência:</strong> ${formData.divergencia}</p>
-                <p><strong>Assinatura:</strong> ${formData.assinaturaFeita ? 'Sim' : 'Não'}</p>
-                <p><strong>Classificação:</strong> ${formData.metrica} (${formData.pontuacao} pontos)</p>
-            `;
-            summaryDiv.style.display = 'block';
-
-            document.getElementById('downloadPdfBtn').onclick = () => generatePDF(formData, manager, signatureDataURL).then(d => d.save(`checklist_${manager.name.replace(' ', '_')}_${Date.now()}.pdf`));
-            document.getElementById('downloadPngBtn').onclick = () => exportAsPNG(formData, manager);
-            document.getElementById('downloadCsvBtn').onclick = () => exportAsCSV(formData, manager);
+            const signatureDataURL = signatureDrawn ? canvas.toDataURL('image/png') : null;
+            await generateConsolidatedPDF(data, signatureDataURL);
 
             finalizeBtn.disabled = false;
-            finalizeBtn.innerHTML = '🔒 Finalizar Checklist';
-
-            showModal('Checklist finalizado com sucesso!', 'sucesso');
+            finalizeBtn.innerHTML = '🔒 Finalizar Checklist (Gerar PDF Consolidado)';
+            alert('PDF gerado com sucesso!');
         });
 
-        // Inicialização
-        window.addEventListener('load', function() {
-            updateManagerUI();
-            initCanvas();
-            updateMetric();
-            renderHistory();
-        });
-
+        updateManagerUI();
+        initCanvas();
         setInterval(updateManagerUI, 60000);
     })();
 </script>
