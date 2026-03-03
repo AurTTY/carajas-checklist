@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Check List - Carajás (Múltiplas Ruas)</title>
+    <title>Controle de Layout - Carajás (Múltiplas Ruas)</title>
     <!-- jsPDF e html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -56,6 +56,16 @@
             margin: 15px 0 20px;
             border-left: 8px solid #FF671F;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        .manager-info {
+            flex: 2 1 250px;
+            min-width: 200px;
         }
         .manager-label {
             font-size: 0.85rem;
@@ -69,6 +79,7 @@
             font-weight: 800;
             color: #007269;
             line-height: 1.2;
+            word-break: break-word;
         }
         .manager-shift {
             font-size: 1rem;
@@ -79,6 +90,40 @@
             padding: 4px 14px;
             border-radius: 40px;
             margin-top: 6px;
+        }
+        .manager-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            flex: 1 1 200px;
+        }
+        .manager-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .manager-selector select {
+            padding: 8px 12px;
+            border-radius: 40px;
+            border: 1px solid #007269;
+            background: white;
+            color: #007269;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 180px;
+        }
+        .manager-selector button {
+            background: #FF671F;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
         }
         .section-title {
             font-size: 1.2rem;
@@ -97,12 +142,29 @@
             border: 2px solid #007269;
             position: relative;
         }
-        .rua-card h3 {
-            color: #007269;
+        .rua-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
-            font-size: 1.3rem;
             padding-right: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
+        .rua-header h3 {
+            color: #007269;
+            font-size: 1.3rem;
+        }
+        .rua-classificacao {
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 5px 15px;
+            border-radius: 30px;
+            background: #f0f4fa;
+        }
+        .class-aceitavel { color: #2e7d32; background: #e8f5e8; }
+        .class-moderada { color: #b85e00; background: #fff0e0; }
+        .class-critica { color: #b71c1c; background: #ffebee; }
         .remove-rua {
             position: absolute;
             top: 10px;
@@ -157,6 +219,33 @@
             width: 20px;
             height: 20px;
             accent-color: #007269;
+        }
+        .plano-acao-area {
+            margin-top: 10px;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #fff3e0;
+            border-radius: 16px;
+            border-left: 4px solid #FF671F;
+            display: none;
+        }
+        .plano-acao-area label {
+            font-weight: 600;
+            color: #b85e00;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .plano-acao-area textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 70px;
+        }
+        .plano-acao-area.visible {
+            display: block;
         }
         .file-area {
             display: flex;
@@ -367,13 +456,27 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>Check List <span>Carajás</span></h1>
+        <h1>Controle de Layout <span>Carajás</span></h1>
     </div>
 
+    <!-- Card do gerente com troca automática e seletor manual -->
     <div class="manager-card" id="managerCard">
-        <div class="manager-label">responsável do turno</div>
-        <div class="manager-name" id="currentManagerName">Carregando...</div>
-        <div class="manager-shift" id="currentManagerShift"></div>
+        <div class="manager-info">
+            <div class="manager-label">responsável do turno</div>
+            <div class="manager-name" id="currentManagerName">Carregando...</div>
+            <div class="manager-shift" id="currentManagerShift"></div>
+        </div>
+        <div class="manager-controls">
+            <div class="manager-selector">
+                <select id="manualManagerSelect">
+                    <option value="auto">Automático</option>
+                    <option value="Eduardo Barbosa">Eduardo Barbosa (6h-14h)</option>
+                    <option value="Amanda Bertulino">Amanda Bertulino (14h-22h)</option>
+                    <option value="Christopher Borges">Christopher Borges (22h-6h)</option>
+                </select>
+                <button id="applyManualManager">Aplicar</button>
+            </div>
+        </div>
     </div>
 
     <!-- Container das avaliações de ruas -->
@@ -414,17 +517,148 @@
 
 <script>
     (function() {
-        // ========== MODAL DE SELEÇÃO DE RUA ==========
+        // ========== DEFINIÇÃO DOS GESTORES E SUAS RUAS ==========
+        const managers = [
+            { 
+                name: "Eduardo Barbosa", 
+                shift: "06:00 – 14:00", 
+                start: 6, 
+                end: 14, 
+                password: "1111",
+                ruas: ['Rua 8', 'Rua 12', 'Rua 13', 'Rua 14']  // Eduardo
+            },
+            { 
+                name: "Amanda Bertulino", 
+                shift: "14:00 – 22:00", 
+                start: 14, 
+                end: 22, 
+                password: "2222",
+                ruas: ['Rua 15', 'Rua 16']  // Amanda
+            },
+            { 
+                name: "Christopher Borges", 
+                shift: "22:00 – 06:00", 
+                start: 22, 
+                end: 6, 
+                password: "3333",
+                ruas: ['Rua 18', 'Rua 19']  // Cris
+            }
+        ];
+
+        let manualManager = null; // se não for null, usa este gestor fixo
+        let currentManager = managers[0]; // gestor atual (pode ser automático ou manual)
+
+        // Função para obter o gestor baseado na hora (se manualManager for null)
+        function getCurrentManagerByTime() {
+            const now = new Date();
+            const hour = now.getHours();
+            for (let m of managers) {
+                if (m.start < m.end) {
+                    if (hour >= m.start && hour < m.end) return m;
+                } else {
+                    if (hour >= m.start || hour < m.end) return m;
+                }
+            }
+            return managers[0];
+        }
+
+        // Função que retorna o gestor atual (considerando manual)
+        function getCurrentManager() {
+            if (manualManager) {
+                return manualManager;
+            }
+            return getCurrentManagerByTime();
+        }
+
+        // Atualiza a interface com o gestor atual
+        function updateManagerUI() {
+            const m = getCurrentManager();
+            document.getElementById('currentManagerName').innerText = m.name;
+            document.getElementById('currentManagerShift').innerText = `Turno • ${m.shift}`;
+            // Atualiza currentManager para referência
+            currentManager = m;
+        }
+
+        // ========== VERIFICAÇÃO DE COMPATIBILIDADE DE RUAS ==========
+        function todasRuasPertencemAoGestor(gestor) {
+            const ruasAdicionadas = ruasData.map(card => card.ruaSelecionada);
+            return ruasAdicionadas.every(rua => gestor.ruas.includes(rua));
+        }
+
+        function removerTodasRuas() {
+            ruasData.forEach(card => card.element.remove());
+            ruasData = [];
+        }
+
+        // ========== LÓGICA DE MUDANÇA DE GESTOR ==========
+        function tentarMudarParaGestor(novoGestor) {
+            if (!novoGestor) return false;
+            const gestorAntigo = getCurrentManager();
+            if (gestorAntigo.name === novoGestor.name) return true;
+
+            if (ruasData.length > 0) {
+                if (!todasRuasPertencemAoGestor(novoGestor)) {
+                    const confirmar = confirm(`As ruas atuais não pertencem a ${novoGestor.name}. Deseja removê-las e continuar?`);
+                    if (confirmar) {
+                        removerTodasRuas();
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        document.getElementById('applyManualManager').addEventListener('click', function() {
+            const select = document.getElementById('manualManagerSelect');
+            const value = select.value;
+            let novoGestor = null;
+            if (value === 'auto') {
+                novoGestor = getCurrentManagerByTime();
+                if (tentarMudarParaGestor(novoGestor)) {
+                    manualManager = null;
+                    updateManagerUI();
+                } else {
+                    select.value = manualManager ? manualManager.name : 'auto';
+                }
+            } else {
+                novoGestor = managers.find(m => m.name === value);
+                if (tentarMudarParaGestor(novoGestor)) {
+                    manualManager = novoGestor;
+                    updateManagerUI();
+                } else {
+                    select.value = manualManager ? manualManager.name : 'auto';
+                }
+            }
+        });
+
+        setInterval(() => {
+            if (manualManager) return;
+            const novoGestor = getCurrentManagerByTime();
+            const gestorAtual = getCurrentManager();
+            if (novoGestor.name !== gestorAtual.name) {
+                if (ruasData.length === 0 || todasRuasPertencemAoGestor(novoGestor)) {
+                    updateManagerUI();
+                } else {
+                    console.log('Turno mudou, mas há ruas incompatíveis. Mantendo gestor anterior.');
+                }
+            }
+        }, 60000);
+
+        // ========== MODAL DE SELEÇÃO DE RUA (FILTRADO POR GESTOR) ==========
         const ruaModal = document.getElementById('ruaModal');
         const modalOptions = document.getElementById('modalOptionsContainer');
         const modalConfirm = document.getElementById('modalConfirm');
         const modalCancel = document.getElementById('modalCancel');
-        const ruasDisponiveis = ['Rua 8', 'Rua 11', 'Rua 12', 'Rua 13', 'Rua 14'];
         let currentResolve = null;
 
-        function abrirModalSelecaoRua(ruasUsadas) {
+        function abrirModalSelecaoRua() {
             return new Promise((resolve) => {
                 currentResolve = resolve;
+                const gestorAtual = getCurrentManager();
+                const ruasDisponiveis = gestorAtual.ruas;
+                const ruasUsadas = getRuasUsadas();
+
                 let html = '';
                 ruasDisponiveis.forEach(rua => {
                     const disabled = ruasUsadas.includes(rua) ? 'disabled' : '';
@@ -453,27 +687,6 @@
             });
         }
 
-        // ========== TURNOS ==========
-        const managers = [
-            { name: "Eduardo Barbosa", shift: "06:00 – 14:00", start: 6, end: 14, password: "1111" },
-            { name: "Amanda Bertulino", shift: "14:00 – 22:00", start: 14, end: 22, password: "2222" },
-            { name: "Christopher Borges", shift: "22:00 – 06:00", start: 22, end: 6, password: "3333" }
-        ];
-        function getCurrentManager() {
-            const hour = new Date().getHours();
-            for (let m of managers) {
-                if (m.start < m.end) { if (hour >= m.start && hour < m.end) return m; }
-                else { if (hour >= m.start || hour < m.end) return m; }
-            }
-            return managers[0];
-        }
-        function updateManagerUI() {
-            const m = getCurrentManager();
-            document.getElementById('currentManagerName').innerText = m.name;
-            document.getElementById('currentManagerShift').innerText = `Turno • ${m.shift}`;
-            return m;
-        }
-
         // ========== GERENCIAMENTO DAS RUAS ==========
         const ruasContainer = document.getElementById('ruasContainer');
         let ruasData = [];
@@ -482,58 +695,165 @@
             return ruasData.map(card => card.ruaSelecionada).filter(r => r);
         }
 
+        // Função para calcular pontuação e classificação de um card
+        function calcularClassificacao(cardData) {
+            const element = cardData.element;
+            const obstruida = element.querySelector('input[name^="obstruida_"]:checked')?.value;
+            const limpa = element.querySelector('input[name^="limpa_"]:checked')?.value;
+            const palletsFora = element.querySelector('input[name^="palletsFora_"]:checked')?.value;
+            const palletsRua = element.querySelector('input[name^="palletsRua_"]:checked')?.value;
+            const avarias = element.querySelector('input[name^="avarias_"]:checked')?.value;
+            const predios = element.querySelector('input[name^="prediosSinalizados_"]:checked')?.value;
+            const divergencia = element.querySelector('input[name^="divergencia_"]:checked')?.value;
+            const altura = element.querySelector('input[name^="altura_"]:checked')?.value;
+
+            if (!obstruida || !limpa || !palletsFora || !palletsRua || !avarias || !predios || !divergencia || !altura) {
+                return null;
+            }
+
+            let score = 0;
+            if (obstruida === 'Sim') score += 3; // crítico, pontuação maior
+            if (limpa === 'Não') score += 2;
+            if (palletsFora === 'Mais de 5') score += 3;
+            else if (palletsFora === 'Menos de 5') score += 1;
+            if (palletsRua === 'Sim') score += 2; // crítico
+            if (avarias === 'Mais de 5') score += 3;
+            else if (avarias === 'Menos de 5') score += 1;
+            if (predios === 'Não') score += 2;
+            else if (predios === 'Parcialmente') score += 1;
+            if (divergencia === 'Sim') score += 2;
+            if (altura === 'Não') score += 3; // crítico
+
+            let classificacao = 'Aceitável';
+            let classe = 'class-aceitavel';
+            if (score > 4) { classificacao = 'Moderada'; classe = 'class-moderada'; }
+            if (score > 8) { classificacao = 'Crítica'; classe = 'class-critica'; }
+
+            return { score, classificacao, classe };
+        }
+
+        function atualizarBadgeClassificacao(cardData) {
+            const result = calcularClassificacao(cardData);
+            const badge = cardData.element.querySelector('.rua-classificacao');
+            if (result) {
+                badge.innerText = `${result.classificacao} (${result.score} pts)`;
+                badge.className = `rua-classificacao ${result.classe}`;
+            } else {
+                badge.innerText = 'Incompleto';
+                badge.className = `rua-classificacao`;
+            }
+        }
+
+        // Função para gerenciar a exibição dos campos de plano de ação
+        function setupPlanoAcaoListeners(cardData, perguntaName, condicaoValor, planoDivId) {
+            const radios = cardData.element.querySelectorAll(`input[name^="${perguntaName}"]`);
+            const planoDiv = cardData.element.querySelector(`#${planoDivId}`);
+            const textarea = planoDiv.querySelector('textarea');
+
+            function togglePlano() {
+                const selected = cardData.element.querySelector(`input[name^="${perguntaName}"]:checked`)?.value;
+                if (selected === condicaoValor) {
+                    planoDiv.classList.add('visible');
+                    textarea.setAttribute('required', true);
+                } else {
+                    planoDiv.classList.remove('visible');
+                    textarea.removeAttribute('required');
+                }
+            }
+
+            radios.forEach(radio => radio.addEventListener('change', togglePlano));
+            // Executar uma vez para estado inicial (caso já venha preenchido de uma edição)
+            setTimeout(togglePlano, 0);
+        }
+
         async function adicionarRua() {
-            const ruasUsadas = getRuasUsadas();
-            const ruaEscolhida = await abrirModalSelecaoRua(ruasUsadas);
+            const ruaEscolhida = await abrirModalSelecaoRua();
             if (!ruaEscolhida) return;
 
-            const index = ruasData.length;
+            const index = ruasData.length; // identificador único para inputs
             const card = document.createElement('div');
             card.className = 'rua-card';
             card.innerHTML = `
-                <h3>${ruaEscolhida}</h3>
+                <div class="rua-header">
+                    <h3>${ruaEscolhida}</h3>
+                    <span class="rua-classificacao">Incompleto</span>
+                </div>
                 <button class="remove-rua">✕</button>
-                <div class="question">A rua está obstruída? <span class="required-star">*</span></div>
-                <div class="hint">Objetos dificultando a circulação</div>
+
+                <!-- Pergunta 1: A rua está obstruída? (crítico) -->
+                <div class="question">1. A rua está obstruída? <span class="required-star">*</span></div>
+                <div class="hint">Objetos dificultando a circulação (crítico)</div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="obstruida_${index}" value="Sim" required> Sim</label>
                     <label class="option-item"><input type="radio" name="obstruida_${index}" value="Não"> Não</label>
                 </div>
-                <div class="question">Rua está limpa? <span class="required-star">*</span></div>
+                <div class="plano-acao-area" id="planoObstruida_${index}">
+                    <label>Plano de Ação (obrigatório):</label>
+                    <textarea name="planoObstruida_${index}" placeholder="Descreva as ações corretivas..."></textarea>
+                </div>
+
+                <!-- Pergunta 2: A rua está limpa? -->
+                <div class="question">2. A rua está limpa? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="limpa_${index}" value="Sim" required> Sim</label>
                     <label class="option-item"><input type="radio" name="limpa_${index}" value="Não"> Não</label>
                 </div>
-                <div class="question">Existem Pallets fora da demarcação? <span class="required-star">*</span></div>
+
+                <!-- Pergunta 3: Existem pallets fora da demarcação? -->
+                <div class="question">3. Existem pallets fora da demarcação? <span class="required-star">*</span></div>
                 <div class="hint">Linha amarela delimitando armazenamento</div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="palletsFora_${index}" value="Mais de 5" required> Mais de 5</label>
                     <label class="option-item"><input type="radio" name="palletsFora_${index}" value="Menos de 5"> Menos de 5</label>
                     <label class="option-item"><input type="radio" name="palletsFora_${index}" value="Não há Pallets para armazenar"> Não há Pallets</label>
                 </div>
-                <div class="question">Existem pallets na rua para serem armazenados? <span class="required-star">*</span></div>
+
+                <!-- Pergunta 4: Existem pallets na rua aguardando armazenamento? (crítico) -->
+                <div class="question">4. Existem pallets na rua aguardando armazenamento? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="palletsRua_${index}" value="Sim" required> Sim</label>
                     <label class="option-item"><input type="radio" name="palletsRua_${index}" value="Não"> Não</label>
                 </div>
-                <div class="question">Existem Avarias? <span class="required-star">*</span></div>
+                <div class="plano-acao-area" id="planoPalletsRua_${index}">
+                    <label>Plano de Ação (obrigatório):</label>
+                    <textarea name="planoPalletsRua_${index}" placeholder="Descreva as ações para armazenamento..."></textarea>
+                </div>
+
+                <!-- Pergunta 5: Existem avarias identificadas? -->
+                <div class="question">5. Existem avarias identificadas? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="avarias_${index}" value="Mais de 5" required> Mais de 5</label>
                     <label class="option-item"><input type="radio" name="avarias_${index}" value="Menos de 5"> Menos de 5</label>
                     <label class="option-item"><input type="radio" name="avarias_${index}" value="Não foi encontrada avarias"> Não encontrada</label>
                 </div>
-                <div class="question">Prédios sinalizados? <span class="required-star">*</span></div>
+
+                <!-- Pergunta 6: Os prédios/endereço estão devidamente sinalizados e identificados? -->
+                <div class="question">6. Os prédios/endereço estão devidamente sinalizados e identificados? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="prediosSinalizados_${index}" value="Sim" required> Sim</label>
                     <label class="option-item"><input type="radio" name="prediosSinalizados_${index}" value="Não"> Não</label>
                     <label class="option-item"><input type="radio" name="prediosSinalizados_${index}" value="Parcialmente"> Parcialmente</label>
                 </div>
-                <div class="question">Existem divergência de produtos armazenados? <span class="required-star">*</span></div>
+
+                <!-- Pergunta 7: Existem divergências nos produtos armazenados? -->
+                <div class="question">7. Existem divergências nos produtos armazenados? <span class="required-star">*</span></div>
                 <div class="hint">Mais de um fornecedor no mesmo endereço?</div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="divergencia_${index}" value="Sim" required> Sim</label>
                     <label class="option-item"><input type="radio" name="divergencia_${index}" value="Não"> Não</label>
                 </div>
+
+                <!-- Pergunta 8: A altura de empilhamento está conforme padrão estabelecido? (crítico) -->
+                <div class="question">8. A altura de empilhamento está conforme padrão estabelecido? <span class="required-star">*</span></div>
+                <div class="options">
+                    <label class="option-item"><input type="radio" name="altura_${index}" value="Sim" required> Sim</label>
+                    <label class="option-item"><input type="radio" name="altura_${index}" value="Não"> Não</label>
+                </div>
+                <div class="plano-acao-area" id="planoAltura_${index}">
+                    <label>Plano de Ação (obrigatório):</label>
+                    <textarea name="planoAltura_${index}" placeholder="Descreva as ações para adequação da altura..."></textarea>
+                </div>
+
                 <div class="question">Anexar fotos (máx 4)</div>
                 <div class="file-area">
                     <label class="file-btn" for="fileInput_${index}">Adicionar arquivos</label>
@@ -553,6 +873,18 @@
             };
             ruasData.push(cardData);
 
+            // Configurar planos de ação
+            setupPlanoAcaoListeners(cardData, 'obstruida_', 'Sim', `planoObstruida_${index}`);
+            setupPlanoAcaoListeners(cardData, 'palletsRua_', 'Sim', `planoPalletsRua_${index}`);
+            setupPlanoAcaoListeners(cardData, 'altura_', 'Não', `planoAltura_${index}`);
+
+            // Adicionar listeners para atualizar a classificação
+            const radios = card.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => atualizarBadgeClassificacao(cardData));
+            });
+
+            // Upload de imagens
             cardData.fileInput.addEventListener('change', async function(e) {
                 let files = Array.from(e.target.files);
                 if (files.length > 4) {
@@ -570,6 +902,7 @@
                 cardData.fileInput.files = dt.files;
             });
 
+            // Botão remover
             card.querySelector('.remove-rua').addEventListener('click', function() {
                 if (ruasData.length > 1) {
                     const idx = ruasData.indexOf(cardData);
@@ -724,6 +1057,7 @@
             const manager = getCurrentManager();
             const ruas = [];
             let allValid = true;
+            let missingPlano = false;
 
             ruasData.forEach(card => {
                 if (!card.ruaSelecionada) {
@@ -738,27 +1072,47 @@
                 const avarias = card.element.querySelector('input[name^="avarias_"]:checked')?.value;
                 const predios = card.element.querySelector('input[name^="prediosSinalizados_"]:checked')?.value;
                 const divergencia = card.element.querySelector('input[name^="divergencia_"]:checked')?.value;
+                const altura = card.element.querySelector('input[name^="altura_"]:checked')?.value;
 
-                if (!obstruida || !limpa || !palletsFora || !palletsRua || !avarias || !predios || !divergencia) {
+                // Coletar planos de ação se aplicável
+                let planoObstruida = '';
+                let planoPalletsRua = '';
+                let planoAltura = '';
+
+                if (obstruida === 'Sim') {
+                    planoObstruida = card.element.querySelector('textarea[name^="planoObstruida_"]')?.value.trim() || '';
+                    if (!planoObstruida) missingPlano = true;
+                }
+                if (palletsRua === 'Sim') {
+                    planoPalletsRua = card.element.querySelector('textarea[name^="planoPalletsRua_"]')?.value.trim() || '';
+                    if (!planoPalletsRua) missingPlano = true;
+                }
+                if (altura === 'Não') {
+                    planoAltura = card.element.querySelector('textarea[name^="planoAltura_"]')?.value.trim() || '';
+                    if (!planoAltura) missingPlano = true;
+                }
+
+                if (!obstruida || !limpa || !palletsFora || !palletsRua || !avarias || !predios || !divergencia || !altura) {
                     allValid = false;
                     return;
                 }
 
                 let score = 0;
-                if (obstruida === 'Sim') score += 2;
+                if (obstruida === 'Sim') score += 3;
                 if (limpa === 'Não') score += 2;
                 if (palletsFora === 'Mais de 5') score += 3;
                 else if (palletsFora === 'Menos de 5') score += 1;
-                if (palletsRua === 'Sim') score += 1;
+                if (palletsRua === 'Sim') score += 2;
                 if (avarias === 'Mais de 5') score += 3;
                 else if (avarias === 'Menos de 5') score += 1;
                 if (predios === 'Não') score += 2;
                 else if (predios === 'Parcialmente') score += 1;
                 if (divergencia === 'Sim') score += 2;
+                if (altura === 'Não') score += 3;
 
                 let classificacao = 'Aceitável';
-                if (score > 3) classificacao = 'Moderada';
-                if (score > 7) classificacao = 'Crítica';
+                if (score > 4) classificacao = 'Moderada';
+                if (score > 8) classificacao = 'Crítica';
 
                 ruas.push({
                     rua: card.ruaSelecionada,
@@ -769,40 +1123,44 @@
                     avarias,
                     predios,
                     divergencia,
+                    altura,
+                    planoObstruida,
+                    planoPalletsRua,
+                    planoAltura,
                     pontuacao: score,
                     classificacao,
                     images: card.images.map(img => ({ name: img.file.name, dataURL: img.dataURL }))
                 });
             });
 
+            if (missingPlano) {
+                alert('Existem planos de ação obrigatórios não preenchidos. Preencha todos os campos de plano de ação antes de finalizar.');
+                return null;
+            }
+
             return { manager, ruas, allValid };
         }
 
-        // ========== GERAR PDF CONSOLIDADO COM RODAPÉ EM TODAS AS PÁGINAS ==========
+        // ========== GERAR PDF CONSOLIDADO COM RODAPÉ E RESUMO FINAL ==========
         async function generateConsolidatedPDF(data, signatureDataURL) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const manager = data.manager;
             const dateStr = new Date().toLocaleString('pt-BR');
-            const totalPages = data.ruas.length + data.ruas.reduce((acc, r) => acc + r.images.length, 0); // páginas de ruas + fotos (cada foto uma página)
 
-            // Função para adicionar rodapé na página atual
             function addFooter() {
                 const pageWidth = doc.internal.pageSize.width;
                 const pageHeight = doc.internal.pageSize.height;
                 const margin = 14;
-                const footerY = pageHeight - 15; // 15mm do fim
+                const footerY = pageHeight - 15;
 
                 doc.setDrawColor(200,200,200);
                 doc.line(margin, footerY - 3, pageWidth - margin, footerY - 3);
 
-                // Se tiver assinatura, coloca no rodapé
                 if (signatureDataURL && signatureDrawn) {
-                    // Redimensionar assinatura para altura 10mm
                     const sigHeight = 10;
-                    const sigWidth = (canvas.width / canvas.height) * sigHeight; // proporção
+                    const sigWidth = (canvas.width / canvas.height) * sigHeight;
                     doc.addImage(signatureDataURL, 'PNG', margin, footerY - sigHeight, sigWidth, sigHeight);
-                    // Texto ao lado
                     doc.setFontSize(8);
                     doc.text(`Assinado por: ${manager.name} - ${dateStr}`, margin + sigWidth + 5, footerY - 2);
                 } else {
@@ -811,7 +1169,7 @@
                 }
             }
 
-            // Para cada rua
+            // Páginas de cada rua
             for (let i = 0; i < data.ruas.length; i++) {
                 if (i > 0) doc.addPage();
                 const r = data.ruas[i];
@@ -839,6 +1197,7 @@
                     ['Avarias', r.avarias],
                     ['Prédios sinalizados', r.predios],
                     ['Divergência', r.divergencia],
+                    ['Altura empilhamento', r.altura === 'Sim' ? 'Conforme' : 'Não conforme'],
                     ['Classificação', `${r.classificacao} (${r.pontuacao} pts)`]
                 ];
                 fields.forEach(([label, value]) => {
@@ -846,11 +1205,38 @@
                     y += 7;
                 });
 
-                // Se houver fotos, já adicionamos páginas extras depois
-                // Agora adiciona rodapé na página atual
+                // Incluir planos de ação se existirem
+                if (r.planoObstruida) {
+                    doc.text('Plano de ação (obstrução):', 14, y);
+                    y += 5;
+                    doc.setFontSize(8);
+                    const lines = doc.splitTextToSize(r.planoObstruida, 180);
+                    doc.text(lines, 14, y);
+                    y += lines.length * 4 + 5;
+                    doc.setFontSize(10);
+                }
+                if (r.planoPalletsRua) {
+                    doc.text('Plano de ação (pallets aguardando):', 14, y);
+                    y += 5;
+                    doc.setFontSize(8);
+                    const lines = doc.splitTextToSize(r.planoPalletsRua, 180);
+                    doc.text(lines, 14, y);
+                    y += lines.length * 4 + 5;
+                    doc.setFontSize(10);
+                }
+                if (r.planoAltura) {
+                    doc.text('Plano de ação (altura):', 14, y);
+                    y += 5;
+                    doc.setFontSize(8);
+                    const lines = doc.splitTextToSize(r.planoAltura, 180);
+                    doc.text(lines, 14, y);
+                    y += lines.length * 4 + 5;
+                    doc.setFontSize(10);
+                }
+
                 addFooter();
 
-                // Páginas de fotos para esta rua
+                // Páginas de fotos
                 for (let j = 0; j < r.images.length; j++) {
                     doc.addPage();
                     doc.setFillColor(0, 114, 105);
@@ -859,12 +1245,65 @@
                     doc.setFontSize(12);
                     doc.text(`Foto ${j+1} - ${r.rua}`, 14, 11);
                     doc.setTextColor(0, 0, 0);
-                    doc.addImage(r.images[j].dataURL, 'JPEG', 10, 20, 190, 0, undefined, 'FAST');
+                    
+                    const imgData = r.images[j].dataURL;
+                    const imgProps = doc.getImageProperties(imgData);
+                    const maxWidth = 190;
+                    const maxHeight = 250;
+                    let width = maxWidth;
+                    let height = (imgProps.height * width) / imgProps.width;
+                    if (height > maxHeight) {
+                        height = maxHeight;
+                        width = (imgProps.width * height) / imgProps.height;
+                    }
+                    doc.addImage(imgData, 'JPEG', 10, 20, width, height);
+                    
                     addFooter();
                 }
             }
 
-            // Se houver assinatura mas nenhuma rua (nunca) - não precisa
+            // Página de resumo final
+            doc.addPage();
+            doc.setFillColor(0, 114, 105);
+            doc.rect(0, 0, 210, 20, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.text('Resumo da Inspeção', 14, 14);
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            let y = 40;
+            doc.text('Classificação das ruas:', 14, y);
+            y += 10;
+
+            data.ruas.forEach(r => {
+                let cor;
+                if (r.classificacao === 'Crítica') cor = '#b71c1c';
+                else if (r.classificacao === 'Moderada') cor = '#b85e00';
+                else cor = '#2e7d32';
+                doc.setTextColor(cor);
+                doc.text(`${r.rua}: ${r.classificacao} (${r.pontuacao} pts)`, 20, y);
+                y += 7;
+            });
+
+            doc.setTextColor(0,0,0);
+            y += 5;
+            doc.setFont('helvetica', 'bold');
+            doc.text('Resumo das ocorrências críticas:', 14, y);
+            y += 7;
+            const criticas = data.ruas.filter(r => r.classificacao === 'Crítica');
+            if (criticas.length === 0) {
+                doc.text('Nenhuma rua classificada como crítica.', 20, y);
+            } else {
+                criticas.forEach(r => {
+                    doc.setTextColor('#b71c1c');
+                    doc.text(`- ${r.rua} (${r.pontuacao} pts)`, 20, y);
+                    y += 7;
+                });
+            }
+
+            addFooter();
+
             doc.save(`checklist_${manager.name.replace(' ','_')}_${Date.now()}.pdf`);
         }
 
@@ -883,6 +1322,7 @@
             }
 
             const data = collectAllData();
+            if (!data) return; // erro já tratado (planos ausentes)
             if (!data.allValid) {
                 alert('Preencha todas as perguntas obrigatórias em todos os cards.');
                 return;
@@ -891,17 +1331,22 @@
             finalizeBtn.disabled = true;
             finalizeBtn.innerHTML = '<span class="spinner"></span> Gerando...';
 
-            const signatureDataURL = signatureDrawn ? canvas.toDataURL('image/png') : null;
-            await generateConsolidatedPDF(data, signatureDataURL);
-
-            finalizeBtn.disabled = false;
-            finalizeBtn.innerHTML = '🔒 Finalizar Checklist (Gerar PDF Consolidado)';
-            alert('PDF gerado com sucesso!');
+            try {
+                const signatureDataURL = signatureDrawn ? canvas.toDataURL('image/png') : null;
+                await generateConsolidatedPDF(data, signatureDataURL);
+                alert('PDF gerado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('Ocorreu um erro ao gerar o PDF. Verifique o console para mais detalhes.');
+            } finally {
+                finalizeBtn.disabled = false;
+                finalizeBtn.innerHTML = '🔒 Finalizar Checklist (Gerar PDF Consolidado)';
+            }
         });
 
+        // Inicialização
         updateManagerUI();
         initCanvas();
-        setInterval(updateManagerUI, 60000);
     })();
 </script>
 </body>
