@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Controle de Layout - Carajás (Múltiplas Ruas)</title>
+    <title>Ronda de Organização e Conformidade – Passagem de Turno</title>
     <!-- jsPDF e html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -377,7 +377,7 @@
             font-size: 0.8rem;
             margin-top: 20px;
         }
-        /* Modal de seleção de rua */
+        /* Modal de seleção de rua (existente) */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -441,6 +441,67 @@
             background: #ccc;
             color: #333;
         }
+        /* Modal personalizado de aviso/confirmação */
+        .custom-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2100;
+        }
+        .custom-modal-box {
+            background: white;
+            max-width: 380px;
+            width: 90%;
+            border-radius: 28px;
+            padding: 24px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-left: 8px solid #FF671F;
+            text-align: center;
+        }
+        .custom-modal-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .custom-modal-title {
+            color: #007269;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .custom-modal-message {
+            color: #333;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+        }
+        .custom-modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .custom-modal-btn {
+            background: #007269;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 100px;
+        }
+        .custom-modal-btn.confirm {
+            background: #FF671F;
+        }
+        .custom-modal-btn.cancel {
+            background: #ccc;
+            color: #333;
+        }
         .spinner {
             border: 4px solid rgba(0,0,0,0.1);
             border-left-color: #007269;
@@ -456,10 +517,10 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>Controle de Layout <span>Carajás</span></h1>
+        <h1>Ronda de Organização e Conformidade <span>– Passagem de Turno</span></h1>
     </div>
 
-    <!-- Card do gerente com troca automática e seletor manual -->
+    <!-- Card do gerente -->
     <div class="manager-card" id="managerCard">
         <div class="manager-info">
             <div class="manager-label">responsável do turno</div>
@@ -484,7 +545,7 @@
 
     <button class="add-rua-btn" id="addRuaBtn">➕ Adicionar nova rua</button>
 
-    <!-- Seção de assinatura e senha (global) -->
+    <!-- Seção de assinatura e senha -->
     <div class="section-title">Finalização do turno</div>
     <div class="question-group" style="background:white; border-radius:20px; padding:16px;">
         <div class="question">Assinatura do gerente (opcional)</div>
@@ -500,10 +561,10 @@
     </div>
 
     <button class="finalize-btn" id="finalizeBtn">🔒 Finalizar Checklist (Gerar PDF Consolidado)</button>
-    <footer>Controle de Layout - Carajás • Múltiplas Ruas</footer>
+    <footer>Ronda de Organização e Conformidade – Passagem de Turno • Múltiplas Ruas</footer>
 </div>
 
-<!-- Modal de seleção de rua -->
+<!-- Modal de seleção de rua (existente) -->
 <div class="modal-overlay" id="ruaModal">
     <div class="modal-box">
         <h3>Selecione a rua</h3>
@@ -515,8 +576,84 @@
     </div>
 </div>
 
+<!-- Modal personalizado de aviso/confirmação -->
+<div class="custom-modal-overlay" id="customModal">
+    <div class="custom-modal-box">
+        <div class="custom-modal-icon" id="customModalIcon">⚠️</div>
+        <div class="custom-modal-title" id="customModalTitle">Aviso</div>
+        <div class="custom-modal-message" id="customModalMessage"></div>
+        <div class="custom-modal-actions" id="customModalActions">
+            <button class="custom-modal-btn" id="customModalOk">OK</button>
+        </div>
+    </div>
+</div>
+
 <script>
     (function() {
+        // ========== MODAL PERSONALIZADO ==========
+        const customModal = document.getElementById('customModal');
+        const customModalIcon = document.getElementById('customModalIcon');
+        const customModalTitle = document.getElementById('customModalTitle');
+        const customModalMessage = document.getElementById('customModalMessage');
+        const customModalActions = document.getElementById('customModalActions');
+        let customModalResolve = null;
+
+        function showModal(message, title = 'Aviso', icon = '⚠️') {
+            return new Promise((resolve) => {
+                customModalIcon.textContent = icon;
+                customModalTitle.textContent = title;
+                customModalMessage.textContent = message;
+                customModalActions.innerHTML = '<button class="custom-modal-btn" id="customModalOk">OK</button>';
+                customModal.style.display = 'flex';
+                
+                const okBtn = document.getElementById('customModalOk');
+                const closeHandler = () => {
+                    customModal.style.display = 'none';
+                    okBtn.removeEventListener('click', closeHandler);
+                    resolve();
+                };
+                okBtn.addEventListener('click', closeHandler);
+            });
+        }
+
+        function showConfirmModal(message, title = 'Confirmação', icon = '❓') {
+            return new Promise((resolve) => {
+                customModalIcon.textContent = icon;
+                customModalTitle.textContent = title;
+                customModalMessage.textContent = message;
+                customModalActions.innerHTML = `
+                    <button class="custom-modal-btn cancel" id="customModalCancel">Cancelar</button>
+                    <button class="custom-modal-btn confirm" id="customModalConfirm">Confirmar</button>
+                `;
+                customModal.style.display = 'flex';
+
+                const confirmBtn = document.getElementById('customModalConfirm');
+                const cancelBtn = document.getElementById('customModalCancel');
+
+                const confirmHandler = () => {
+                    customModal.style.display = 'none';
+                    cleanup();
+                    resolve(true);
+                };
+                const cancelHandler = () => {
+                    customModal.style.display = 'none';
+                    cleanup();
+                    resolve(false);
+                };
+                const cleanup = () => {
+                    confirmBtn.removeEventListener('click', confirmHandler);
+                    cancelBtn.removeEventListener('click', cancelHandler);
+                };
+
+                confirmBtn.addEventListener('click', confirmHandler);
+                cancelBtn.addEventListener('click', cancelHandler);
+            });
+        }
+
+        // Substituir alert e confirm nativos (opcional, mas vamos usar as funções acima)
+        window.customAlert = showModal;
+        window.customConfirm = showConfirmModal;
+
         // ========== DEFINIÇÃO DOS GESTORES E SUAS RUAS ==========
         const managers = [
             { 
@@ -525,7 +662,7 @@
                 start: 6, 
                 end: 14, 
                 password: "1111",
-                ruas: ['Rua 8', 'Rua 12', 'Rua 13', 'Rua 14']  // Eduardo
+                ruas: ['Rua 8', 'Rua 12', 'Rua 13', 'Rua 14']
             },
             { 
                 name: "Amanda Bertulino", 
@@ -533,7 +670,7 @@
                 start: 14, 
                 end: 22, 
                 password: "2222",
-                ruas: ['Rua 15', 'Rua 16']  // Amanda
+                ruas: ['Rua 15', 'Rua 16']
             },
             { 
                 name: "Christopher Borges", 
@@ -541,14 +678,13 @@
                 start: 22, 
                 end: 6, 
                 password: "3333",
-                ruas: ['Rua 18', 'Rua 19']  // Cris
+                ruas: ['Rua 18', 'Rua 19']
             }
         ];
 
-        let manualManager = null; // se não for null, usa este gestor fixo
-        let currentManager = managers[0]; // gestor atual (pode ser automático ou manual)
+        let manualManager = null;
+        let currentManager = managers[0];
 
-        // Função para obter o gestor baseado na hora (se manualManager for null)
         function getCurrentManagerByTime() {
             const now = new Date();
             const hour = now.getHours();
@@ -562,7 +698,6 @@
             return managers[0];
         }
 
-        // Função que retorna o gestor atual (considerando manual)
         function getCurrentManager() {
             if (manualManager) {
                 return manualManager;
@@ -570,12 +705,10 @@
             return getCurrentManagerByTime();
         }
 
-        // Atualiza a interface com o gestor atual
         function updateManagerUI() {
             const m = getCurrentManager();
             document.getElementById('currentManagerName').innerText = m.name;
             document.getElementById('currentManagerShift').innerText = `Turno • ${m.shift}`;
-            // Atualiza currentManager para referência
             currentManager = m;
         }
 
@@ -591,14 +724,18 @@
         }
 
         // ========== LÓGICA DE MUDANÇA DE GESTOR ==========
-        function tentarMudarParaGestor(novoGestor) {
+        async function tentarMudarParaGestor(novoGestor) {
             if (!novoGestor) return false;
             const gestorAntigo = getCurrentManager();
             if (gestorAntigo.name === novoGestor.name) return true;
 
             if (ruasData.length > 0) {
                 if (!todasRuasPertencemAoGestor(novoGestor)) {
-                    const confirmar = confirm(`As ruas atuais não pertencem a ${novoGestor.name}. Deseja removê-las e continuar?`);
+                    const confirmar = await showConfirmModal(
+                        `As ruas atuais não pertencem a ${novoGestor.name}. Deseja removê-las e continuar?`,
+                        'Mudança de gestor',
+                        '🔄'
+                    );
                     if (confirmar) {
                         removerTodasRuas();
                     } else {
@@ -609,13 +746,13 @@
             return true;
         }
 
-        document.getElementById('applyManualManager').addEventListener('click', function() {
+        document.getElementById('applyManualManager').addEventListener('click', async function() {
             const select = document.getElementById('manualManagerSelect');
             const value = select.value;
             let novoGestor = null;
             if (value === 'auto') {
                 novoGestor = getCurrentManagerByTime();
-                if (tentarMudarParaGestor(novoGestor)) {
+                if (await tentarMudarParaGestor(novoGestor)) {
                     manualManager = null;
                     updateManagerUI();
                 } else {
@@ -623,7 +760,7 @@
                 }
             } else {
                 novoGestor = managers.find(m => m.name === value);
-                if (tentarMudarParaGestor(novoGestor)) {
+                if (await tentarMudarParaGestor(novoGestor)) {
                     manualManager = novoGestor;
                     updateManagerUI();
                 } else {
@@ -645,7 +782,7 @@
             }
         }, 60000);
 
-        // ========== MODAL DE SELEÇÃO DE RUA (FILTRADO POR GESTOR) ==========
+        // ========== MODAL DE SELEÇÃO DE RUA ==========
         const ruaModal = document.getElementById('ruaModal');
         const modalOptions = document.getElementById('modalOptionsContainer');
         const modalConfirm = document.getElementById('modalConfirm');
@@ -673,7 +810,7 @@
                 modalConfirm.onclick = () => {
                     const selecionado = document.querySelector('input[name="modalRua"]:checked');
                     if (!selecionado) {
-                        alert('Selecione uma rua.');
+                        showModal('Selecione uma rua.', 'Atenção', '⚠️');
                         return;
                     }
                     ruaModal.style.display = 'none';
@@ -695,7 +832,6 @@
             return ruasData.map(card => card.ruaSelecionada).filter(r => r);
         }
 
-        // Função para calcular pontuação e classificação de um card
         function calcularClassificacao(cardData) {
             const element = cardData.element;
             const obstruida = element.querySelector('input[name^="obstruida_"]:checked')?.value;
@@ -712,17 +848,17 @@
             }
 
             let score = 0;
-            if (obstruida === 'Sim') score += 3; // crítico, pontuação maior
+            if (obstruida === 'Sim') score += 3;
             if (limpa === 'Não') score += 2;
             if (palletsFora === 'Mais de 5') score += 3;
             else if (palletsFora === 'Menos de 5') score += 1;
-            if (palletsRua === 'Sim') score += 2; // crítico
+            if (palletsRua === 'Sim') score += 2;
             if (avarias === 'Mais de 5') score += 3;
             else if (avarias === 'Menos de 5') score += 1;
             if (predios === 'Não') score += 2;
             else if (predios === 'Parcialmente') score += 1;
             if (divergencia === 'Sim') score += 2;
-            if (altura === 'Não') score += 3; // crítico
+            if (altura === 'Não') score += 3;
 
             let classificacao = 'Aceitável';
             let classe = 'class-aceitavel';
@@ -744,7 +880,6 @@
             }
         }
 
-        // Função para gerenciar a exibição dos campos de plano de ação
         function setupPlanoAcaoListeners(cardData, perguntaName, condicaoValor, planoDivId) {
             const radios = cardData.element.querySelectorAll(`input[name^="${perguntaName}"]`);
             const planoDiv = cardData.element.querySelector(`#${planoDivId}`);
@@ -762,7 +897,6 @@
             }
 
             radios.forEach(radio => radio.addEventListener('change', togglePlano));
-            // Executar uma vez para estado inicial (caso já venha preenchido de uma edição)
             setTimeout(togglePlano, 0);
         }
 
@@ -770,7 +904,7 @@
             const ruaEscolhida = await abrirModalSelecaoRua();
             if (!ruaEscolhida) return;
 
-            const index = ruasData.length; // identificador único para inputs
+            const index = ruasData.length;
             const card = document.createElement('div');
             card.className = 'rua-card';
             card.innerHTML = `
@@ -780,7 +914,6 @@
                 </div>
                 <button class="remove-rua">✕</button>
 
-                <!-- Pergunta 1: A rua está obstruída? (crítico) -->
                 <div class="question">1. A rua está obstruída? <span class="required-star">*</span></div>
                 <div class="hint">Objetos dificultando a circulação (crítico)</div>
                 <div class="options">
@@ -792,14 +925,12 @@
                     <textarea name="planoObstruida_${index}" placeholder="Descreva as ações corretivas..."></textarea>
                 </div>
 
-                <!-- Pergunta 2: A rua está limpa? -->
                 <div class="question">2. A rua está limpa? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="limpa_${index}" value="Sim" required> Sim</label>
                     <label class="option-item"><input type="radio" name="limpa_${index}" value="Não"> Não</label>
                 </div>
 
-                <!-- Pergunta 3: Existem pallets fora da demarcação? -->
                 <div class="question">3. Existem pallets fora da demarcação? <span class="required-star">*</span></div>
                 <div class="hint">Linha amarela delimitando armazenamento</div>
                 <div class="options">
@@ -808,7 +939,6 @@
                     <label class="option-item"><input type="radio" name="palletsFora_${index}" value="Não há Pallets para armazenar"> Não há Pallets</label>
                 </div>
 
-                <!-- Pergunta 4: Existem pallets na rua aguardando armazenamento? (crítico) -->
                 <div class="question">4. Existem pallets na rua aguardando armazenamento? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="palletsRua_${index}" value="Sim" required> Sim</label>
@@ -819,7 +949,6 @@
                     <textarea name="planoPalletsRua_${index}" placeholder="Descreva as ações para armazenamento..."></textarea>
                 </div>
 
-                <!-- Pergunta 5: Existem avarias identificadas? -->
                 <div class="question">5. Existem avarias identificadas? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="avarias_${index}" value="Mais de 5" required> Mais de 5</label>
@@ -827,7 +956,6 @@
                     <label class="option-item"><input type="radio" name="avarias_${index}" value="Não foi encontrada avarias"> Não encontrada</label>
                 </div>
 
-                <!-- Pergunta 6: Os prédios/endereço estão devidamente sinalizados e identificados? -->
                 <div class="question">6. Os prédios/endereço estão devidamente sinalizados e identificados? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="prediosSinalizados_${index}" value="Sim" required> Sim</label>
@@ -835,7 +963,6 @@
                     <label class="option-item"><input type="radio" name="prediosSinalizados_${index}" value="Parcialmente"> Parcialmente</label>
                 </div>
 
-                <!-- Pergunta 7: Existem divergências nos produtos armazenados? -->
                 <div class="question">7. Existem divergências nos produtos armazenados? <span class="required-star">*</span></div>
                 <div class="hint">Mais de um fornecedor no mesmo endereço?</div>
                 <div class="options">
@@ -843,7 +970,6 @@
                     <label class="option-item"><input type="radio" name="divergencia_${index}" value="Não"> Não</label>
                 </div>
 
-                <!-- Pergunta 8: A altura de empilhamento está conforme padrão estabelecido? (crítico) -->
                 <div class="question">8. A altura de empilhamento está conforme padrão estabelecido? <span class="required-star">*</span></div>
                 <div class="options">
                     <label class="option-item"><input type="radio" name="altura_${index}" value="Sim" required> Sim</label>
@@ -873,22 +999,19 @@
             };
             ruasData.push(cardData);
 
-            // Configurar planos de ação
             setupPlanoAcaoListeners(cardData, 'obstruida_', 'Sim', `planoObstruida_${index}`);
             setupPlanoAcaoListeners(cardData, 'palletsRua_', 'Sim', `planoPalletsRua_${index}`);
             setupPlanoAcaoListeners(cardData, 'altura_', 'Não', `planoAltura_${index}`);
 
-            // Adicionar listeners para atualizar a classificação
             const radios = card.querySelectorAll('input[type="radio"]');
             radios.forEach(radio => {
                 radio.addEventListener('change', () => atualizarBadgeClassificacao(cardData));
             });
 
-            // Upload de imagens
             cardData.fileInput.addEventListener('change', async function(e) {
                 let files = Array.from(e.target.files);
                 if (files.length > 4) {
-                    alert('Máximo 4 imagens. Primeiras 4 serão usadas.');
+                    await showModal('Máximo 4 imagens. As primeiras 4 serão usadas.', 'Limite de imagens', '📸');
                     files = files.slice(0, 4);
                 }
                 cardData.images = [];
@@ -902,14 +1025,13 @@
                 cardData.fileInput.files = dt.files;
             });
 
-            // Botão remover
-            card.querySelector('.remove-rua').addEventListener('click', function() {
+            card.querySelector('.remove-rua').addEventListener('click', async function() {
                 if (ruasData.length > 1) {
                     const idx = ruasData.indexOf(cardData);
                     ruasData.splice(idx, 1);
                     card.remove();
                 } else {
-                    alert('É necessário pelo menos uma rua.');
+                    await showModal('É necessário pelo menos uma rua.', 'Operação não permitida', '🚫');
                 }
             });
         }
@@ -1038,12 +1160,13 @@
                 };
                 signatureDrawn = undoStack.length > 1;
             } else {
-                alert('Nada para desfazer.');
+                showModal('Nada para desfazer.', 'Informação', 'ℹ️');
             }
         });
 
-        document.getElementById('clearSignature').addEventListener('click', function() {
-            if (confirm('Tem certeza que deseja limpar a assinatura?')) {
+        document.getElementById('clearSignature').addEventListener('click', async function() {
+            const confirmar = await showConfirmModal('Tem certeza que deseja limpar a assinatura?', 'Limpar assinatura', '🗑️');
+            if (confirmar) {
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -1074,7 +1197,6 @@
                 const divergencia = card.element.querySelector('input[name^="divergencia_"]:checked')?.value;
                 const altura = card.element.querySelector('input[name^="altura_"]:checked')?.value;
 
-                // Coletar planos de ação se aplicável
                 let planoObstruida = '';
                 let planoPalletsRua = '';
                 let planoAltura = '';
@@ -1134,14 +1256,33 @@
             });
 
             if (missingPlano) {
-                alert('Existem planos de ação obrigatórios não preenchidos. Preencha todos os campos de plano de ação antes de finalizar.');
+                showModal('Existem planos de ação obrigatórios não preenchidos. Preencha todos os campos de plano de ação antes de finalizar.', 'Atenção', '⚠️');
                 return null;
             }
 
             return { manager, ruas, allValid };
         }
 
-        // ========== GERAR PDF CONSOLIDADO COM RODAPÉ E RESUMO FINAL ==========
+        // ========== NOVA FUNÇÃO: VERIFICAR SE TODAS AS RUAS DO GESTOR FORAM PREENCHIDAS ==========
+        function verificarTodasRuasGestorPreenchidas() {
+            const gestorAtual = getCurrentManager();
+            const ruasGestor = gestorAtual.ruas; // Array de ruas que o gestor é responsável
+            const ruasPreenchidas = ruasData.map(card => card.ruaSelecionada);
+            
+            // Verificar se todas as ruas do gestor estão presentes nas ruas preenchidas
+            const todasRuasPreenchidas = ruasGestor.every(rua => ruasPreenchidas.includes(rua));
+            
+            if (!todasRuasPreenchidas) {
+                const ruasFaltando = ruasGestor.filter(rua => !ruasPreenchidas.includes(rua));
+                const mensagem = `O gestor ${gestorAtual.name} é responsável pelas seguintes ruas que ainda não foram preenchidas: ${ruasFaltando.join(', ')}. Adicione todas as ruas obrigatórias antes de finalizar.`;
+                showModal(mensagem, 'Ruas incompletas', '⚠️');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // ========== GERAR PDF ==========
         async function generateConsolidatedPDF(data, signatureDataURL) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -1169,7 +1310,6 @@
                 }
             }
 
-            // Páginas de cada rua
             for (let i = 0; i < data.ruas.length; i++) {
                 if (i > 0) doc.addPage();
                 const r = data.ruas[i];
@@ -1178,7 +1318,7 @@
                 doc.rect(0, 0, 210, 20, 'F');
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(16);
-                doc.text('Controle de Layout - Carajás', 14, 14);
+                doc.text('Ronda de Organização e Conformidade – Passagem de Turno', 14, 14);
 
                 doc.setTextColor(0, 0, 0);
                 doc.setFontSize(10);
@@ -1205,7 +1345,6 @@
                     y += 7;
                 });
 
-                // Incluir planos de ação se existirem
                 if (r.planoObstruida) {
                     doc.text('Plano de ação (obstrução):', 14, y);
                     y += 5;
@@ -1236,7 +1375,6 @@
 
                 addFooter();
 
-                // Páginas de fotos
                 for (let j = 0; j < r.images.length; j++) {
                     doc.addPage();
                     doc.setFillColor(0, 114, 105);
@@ -1262,7 +1400,6 @@
                 }
             }
 
-            // Página de resumo final
             doc.addPage();
             doc.setFillColor(0, 114, 105);
             doc.rect(0, 0, 210, 20, 'F');
@@ -1310,21 +1447,27 @@
         // ========== FINALIZAR ==========
         const finalizeBtn = document.getElementById('finalizeBtn');
         finalizeBtn.addEventListener('click', async function() {
+            // PRIMEIRA VALIDAÇÃO: Verificar se todas as ruas do gestor foram preenchidas
+            const ruasGestorOk = verificarTodasRuasGestorPreenchidas();
+            if (!ruasGestorOk) {
+                return; // Bloqueia a finalização se faltar ruas
+            }
+
             const manager = getCurrentManager();
             const senha = document.getElementById('senhaValidacao').value.trim();
             if (!senha) {
-                alert('Digite a senha.');
+                await showModal('Digite a senha.', 'Validação', '🔒');
                 return;
             }
             if (senha !== manager.password) {
-                alert('Senha incorreta!');
+                await showModal('Senha incorreta!', 'Erro', '❌');
                 return;
             }
 
             const data = collectAllData();
-            if (!data) return; // erro já tratado (planos ausentes)
+            if (!data) return;
             if (!data.allValid) {
-                alert('Preencha todas as perguntas obrigatórias em todos os cards.');
+                await showModal('Preencha todas as perguntas obrigatórias em todos os cards.', 'Atenção', '⚠️');
                 return;
             }
 
@@ -1334,17 +1477,16 @@
             try {
                 const signatureDataURL = signatureDrawn ? canvas.toDataURL('image/png') : null;
                 await generateConsolidatedPDF(data, signatureDataURL);
-                alert('PDF gerado com sucesso!');
+                await showModal('PDF gerado com sucesso!', 'Concluído', '✅');
             } catch (error) {
                 console.error('Erro ao gerar PDF:', error);
-                alert('Ocorreu um erro ao gerar o PDF. Verifique o console para mais detalhes.');
+                await showModal('Ocorreu um erro ao gerar o PDF. Verifique o console para mais detalhes.', 'Erro', '❌');
             } finally {
                 finalizeBtn.disabled = false;
                 finalizeBtn.innerHTML = '🔒 Finalizar Checklist (Gerar PDF Consolidado)';
             }
         });
 
-        // Inicialização
         updateManagerUI();
         initCanvas();
     })();
